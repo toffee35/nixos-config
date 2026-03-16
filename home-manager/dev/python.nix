@@ -7,10 +7,11 @@
     packages = with pkgs; [
       uv
       poetry
-      python313
+      python314
 
-      python313Packages.greenlet
+      python314Packages.greenlet
 
+      ty
       ruff
       pyright
       mypy
@@ -25,6 +26,11 @@
   };
 
   programs = {
+    ty = {
+      enable = true;
+      settings = {};
+    };
+
     ruff = {
       enable = true;
       settings = {};
