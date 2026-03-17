@@ -7,7 +7,6 @@
     packages = with pkgs; [
       uv
       poetry
-      python314
       python314FreeThreading
 
       ty

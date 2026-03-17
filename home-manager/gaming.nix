@@ -11,7 +11,7 @@
     ];
 
     winePackages = [
-      pkgs.wineWowPackages.full
+      pkgs.wineWow64Packages.full
     ];
   };
 }
