@@ -8,8 +8,7 @@
       uv
       poetry
       python314
-
-      python314Packages.greenlet
+      python314FreeThreading
 
       ty
       ruff
