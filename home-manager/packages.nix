@@ -16,7 +16,6 @@
   ];
 
   programs = {
-    nix-ld.enable = true;
     git = {
       enable = true;
       settings = {
