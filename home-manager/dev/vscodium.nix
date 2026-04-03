@@ -12,6 +12,7 @@
         pkief.material-icon-theme
 
         ms-azuretools.vscode-docker
+        fill-labs.dependi
 
         jnoortheen.nix-ide
         kamadorueda.alejandra
