@@ -57,9 +57,7 @@
         };
 
         "rust-analyzer" = {
-          cargo = {
-            features = ["all"];
-          };
+          cargo.features = "all";
         };
       };
     };
