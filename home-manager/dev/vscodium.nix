@@ -55,6 +55,12 @@
           enableLanguageServer = true;
           serverPath = "${pkgs.nil}/bin/nil";
         };
+
+        "rust-analyzer" = {
+          cargo = {
+            features = ["all"];
+          };
+        };
       };
     };
   };
