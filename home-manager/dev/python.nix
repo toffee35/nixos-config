@@ -11,8 +11,6 @@
 
       ty
       ruff
-      pyright
-      mypy
 
       jetbrains.pycharm
     ];
@@ -37,9 +35,6 @@
     vscode.profiles.${username}.extensions = with pkgs.vscode-extensions; [
       ms-python.python
       ms-python.debugpy
-      ms-python.vscode-pylance
-      ms-python.pylint
-      ms-python.mypy-type-checker
       charliermarsh.ruff
     ];
   };
