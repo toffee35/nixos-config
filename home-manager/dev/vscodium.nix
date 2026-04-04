@@ -57,8 +57,12 @@
           serverPath = "${pkgs.nil}/bin/nil";
         };
 
-        "rust-analyzer" = {
+        rust-analyzer = {
           cargo.features = "all";
+        };
+
+        dependi = {
+          extras.silenceUpdateMessages = true;
         };
       };
     };
