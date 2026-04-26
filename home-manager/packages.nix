@@ -4,7 +4,9 @@
     zoom-us
 
     postman
+
     gemini-cli
+    opencode
 
     obsidian
     chromium
