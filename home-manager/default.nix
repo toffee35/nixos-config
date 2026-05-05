@@ -3,6 +3,7 @@
   username,
   homedir,
   lib,
+  pkgs,
   ...
 }: {
   imports = nixList ./.;
@@ -14,6 +15,11 @@
     enableNixpkgsReleaseCheck = false;
 
     stateVersion = "25.11";
+  };
+
+  systemd.user.services.blueman-applet = {
+    Unit.After = ["graphical-session.target"];
+    Service.ExecStart = lib.mkForce "${pkgs.blueman}/bin/blueman-applet";
   };
 
   home.activation.createNotesDir = lib.hm.dag.entryAfter ["writeBoundary"] ''

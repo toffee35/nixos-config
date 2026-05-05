@@ -79,6 +79,8 @@
 
   security.sudo.enable = true;
 
+  services.upower.enable = true;
+
   environment.systemPackages = with pkgs; [
     nano
     home-manager

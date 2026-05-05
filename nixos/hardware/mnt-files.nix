@@ -13,7 +13,11 @@
 
   virtualisation.docker.daemon.settings.data-root = "/mnt/Files/Docker";
 
-  systemd.services.docker.unitConfig.ConditionPathIsMountPoint = "/mnt/Files";
+  systemd.services.docker = {
+    unitConfig.After = ["mnt-Files.mount"];
+    unitConfig.Requires = ["mnt-Files.mount"];
+    unitConfig.ConditionPathIsMountPoint = "/mnt/Files";
+  };
 
   system.activationScripts.fixFilesOwnership.text = ''
     chown -R ${username}:users /mnt/Files || true
