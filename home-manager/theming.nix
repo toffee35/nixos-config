@@ -1,6 +1,8 @@
-{pkgs, ...}: {
+{pkgs, config, ...}: {
   gtk = {
     enable = true;
+
+    gtk4.theme = config.gtk.theme;
 
     cursorTheme = {
       name = "Quintom_Ink";
