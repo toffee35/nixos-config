@@ -21,6 +21,7 @@
     os-reb-f = "os-reb --impure";
     hm-reb = "home-manager switch --flake ${flakeDir}";
     hm-reb-f = "hm-reb -b backup --impure";
+    os-reb-boot = "sudo nixos-rebuild boot --flake ${flakeDir}";
 
     vm-list = "virsh list --all";
     vm-start = "virsh start";
