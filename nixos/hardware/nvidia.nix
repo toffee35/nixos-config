@@ -1,4 +1,8 @@
-{config, ...}: {
+{
+  config,
+  lib,
+  ...
+}: {
   services.xserver.videoDrivers = ["nvidia"];
 
   nixpkgs.config.nvidia.acceptLicense = true;
@@ -27,6 +31,6 @@
 
   environment.sessionVariables = {
     VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.json";
-    LD_LIBRARY_PATH = "/run/opengl-driver/lib";
+    LD_LIBRARY_PATH = lib.mkBefore ["/run/opengl-driver/lib"];
   };
 }
