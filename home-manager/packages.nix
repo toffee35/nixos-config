@@ -15,6 +15,10 @@
     obs-studio
 
     prismlauncher
+
+    pavucontrol
+    audiosource
+    android-tools
   ];
 
   programs = {
