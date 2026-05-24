@@ -15,6 +15,7 @@
 
     nvidia = {
       modesetting.enable = true;
+      forceFullCompositionPipeline = true;
 
       powerManagement = {
         enable = false;
