@@ -5,7 +5,6 @@
     ".." = "cd ..";
 
     code = "codium";
-    lzdo = "lazydocker";
 
     fl-chk = "nix flake check";
     fl-up = "nix flake update --flake ${flakeDir}";
