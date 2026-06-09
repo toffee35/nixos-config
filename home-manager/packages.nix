@@ -6,6 +6,7 @@
     postman
 
     gemini-cli
+    antigravity-cli
     opencode
 
     obsidian
@@ -14,7 +15,7 @@
     ffmpeg_8-full
     obs-studio
 
-    prismlauncher
+    # prismlauncher
 
     pavucontrol
     audiosource
