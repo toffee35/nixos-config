@@ -2,7 +2,7 @@
   home = {
     packages = with pkgs;
       [
-        nodejs_25
+        nodejs
         pnpm
         typescript-language-server
         eslint
