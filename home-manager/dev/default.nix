@@ -13,5 +13,8 @@
     sqlite
     just
     gnumake
+    gtk3
+    webkitgtk_4_0
+    glib
   ];
 }
