@@ -14,6 +14,7 @@
         user = "git";
         identityFile = "~/.ssh/id_ed25519_work";
       };
+    };
   };
 
   programs.git = {
