@@ -12,5 +12,6 @@
     openssl
     sqlite
     just
+    gnumake
   ];
 }

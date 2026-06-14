@@ -6,6 +6,7 @@
   home.packages = with pkgs; [
     go
     gopls
+    wails
 
     jetbrains.goland
   ];
