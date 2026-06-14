@@ -14,7 +14,7 @@
     just
     gnumake
     gtk3
-    webkitgtk_4_0
+    webkitgtk_4_1
     glib
   ];
 }
