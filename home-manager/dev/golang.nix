@@ -8,10 +8,10 @@
     gopls
     wails
 
-    jetbrains.goland
+    # jetbrains.goland
   ];
 
-  programs.vscode.profiles.${username}.extensions = with pkgs.vscode-extensions; [
-    golang.go
-  ];
+  # programs.vscode.profiles.${username}.extensions = with pkgs.vscode-extensions; [
+  #   golang.go
+  # ];
 }
