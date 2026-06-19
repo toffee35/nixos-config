@@ -16,5 +16,8 @@
     gtk3
     webkitgtk_4_1
     glib
+
+    antigravity
+    opencode-desktop
   ];
 }
