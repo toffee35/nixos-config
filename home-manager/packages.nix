@@ -11,6 +11,7 @@
 
     obsidian
     chromium
+    google-chrome
 
     ffmpeg_8-full
     obs-studio
