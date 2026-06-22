@@ -91,6 +91,8 @@
       enable = true;
 
       libraries = with pkgs; [
+        libGL
+        (lib.getOutput "dev" mesa)
         glib
         nspr
         nss
@@ -102,12 +104,12 @@
         cairo
         gtk3
         pango
-        xorg.libX11
-        xorg.libXcomposite
-        xorg.libXdamage
-        xorg.libXext
-        xorg.libXfixes
-        xorg.libXrandr
+        libx11
+        libxcomposite
+        libxdamage
+        libxext
+        libxfixes
+        libxrandr
         mesa
         expat
         xorg.libxcb
