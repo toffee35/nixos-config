@@ -93,6 +93,7 @@
       libraries = with pkgs; [
         libGL
         (lib.getOutput "dev" mesa)
+        libgbm
         glib
         nspr
         nss
@@ -112,7 +113,7 @@
         libxrandr
         mesa
         expat
-        xorg.libxcb
+        libxcb
         libxkbcommon
         systemd
         alsa-lib
