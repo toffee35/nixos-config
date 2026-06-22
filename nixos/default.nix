@@ -87,7 +87,35 @@
   ];
 
   programs = {
-    nix-ld.enable = true;
+    nix-ld = {
+      enable = true;
+
+      libraries = with pkgs; [
+        glib
+        nspr
+        nss
+        atk
+        at-spi2-atk
+        at-spi2-core
+        cups
+        dbus
+        cairo
+        gtk3
+        pango
+        xorg.libX11
+        xorg.libXcomposite
+        xorg.libXdamage
+        xorg.libXext
+        xorg.libXfixes
+        xorg.libXrandr
+        mesa
+        expat
+        xorg.libxcb
+        libxkbcommon
+        systemd
+        alsa-lib
+      ];
+    };
     dconf.enable = true;
     droidcam.enable = true;
   };
