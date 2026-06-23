@@ -17,6 +17,6 @@
     webkitgtk_4_1
     glib
 
-    google-antigravity-ide
+    google-antigravity-ide-no-fhs
   ];
 }

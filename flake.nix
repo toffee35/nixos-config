@@ -66,7 +66,7 @@
 
         config.allowUnfree = true;
         overlays = [
-          (antigravity-nix.overlays { useFHS = false; })
+          antigravity-nix.overlays.default
           nur.overlays.default
           prismlauncher.overlays.default
           (self: super: {
