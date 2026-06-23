@@ -6,7 +6,7 @@
     postman
 
     gemini-cli
-    antigravity-cli
+    google-antigravity-cli
     google-antigravity
     opencode
 

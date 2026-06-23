@@ -17,7 +17,6 @@
     webkitgtk_4_1
     glib
 
-    antigravity
-    opencode-desktop
+    google-antigravity-ide
   ];
 }
