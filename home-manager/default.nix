@@ -20,9 +20,4 @@
     mkdir -p /mnt/Files/Notes/content
     ln -sfn /mnt/Files/Notes/content ${homedir}/Notes
   '';
-
-  services.gnome-keyring = {
-    enable = true;
-    components = [ "secrets" ];
-  };
 }

@@ -16,6 +16,11 @@
       url = "github:Diegiwg/PrismLauncher-Cracked";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    antigravity-nix = {
+      url = "github:jacopone/antigravity-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -24,6 +29,7 @@
     home-manager,
     nur,
     prismlauncher,
+    antigravity-nix,
   }: let
     system = "x86_64-linux";
 
@@ -60,6 +66,7 @@
 
         config.allowUnfree = true;
         overlays = [
+          antigravity-nix.overlays.default
           nur.overlays.default
           prismlauncher.overlays.default
           (self: super: {

@@ -7,6 +7,7 @@
 
     gemini-cli
     antigravity-cli
+    google-antigravity
     opencode
 
     obsidian
