@@ -1,11 +1,8 @@
 {
-  nixList,
   flakeDir,
   pkgs,
   ...
 }: {
-  imports = nixList ./.;
-
   xsession.windowManager.bspwm = {
     enable = true;
 

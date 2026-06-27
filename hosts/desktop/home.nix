@@ -1,11 +1,12 @@
 {
-  nixList,
   username,
   homedir,
   lib,
   ...
 }: {
-  imports = nixList ./.;
+  imports = [
+    ../../modules/home-manager
+  ];
 
   home = {
     inherit username;

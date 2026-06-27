@@ -56,7 +56,7 @@
       specialArgs = configsArgs;
 
       modules = [
-        ./nixos
+        ./hosts/desktop
       ];
     };
 
@@ -85,7 +85,7 @@
       extraSpecialArgs = configsArgs;
 
       modules = [
-        ./home-manager
+        ./hosts/desktop/home.nix
       ];
     };
   };

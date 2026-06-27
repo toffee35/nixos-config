@@ -1,11 +1,13 @@
 {
-  nixList,
   system,
   pkgs,
   username,
   ...
 }: {
-  imports = nixList ./.;
+  imports = [
+    ./hardware.nix
+    ../../modules/nixos
+  ];
 
   system = {
     stateVersion = "25.11";
@@ -80,6 +82,8 @@
   security.sudo.enable = true;
 
   services.upower.enable = true;
+
+  powerManagement.cpuFreqGovernor = "performance";
 
   environment.systemPackages = with pkgs; [
     nano

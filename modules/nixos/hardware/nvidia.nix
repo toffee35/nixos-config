@@ -29,9 +29,4 @@
       package = config.boot.kernelPackages.nvidiaPackages.legacy_470;
     };
   };
-
-  environment.sessionVariables = {
-    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.json";
-    LD_LIBRARY_PATH = lib.mkBefore ["/run/opengl-driver/lib"];
-  };
 }

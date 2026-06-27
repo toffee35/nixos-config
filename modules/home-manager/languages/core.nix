@@ -1,10 +1,7 @@
 {
-  nixList,
   pkgs,
   ...
 }: {
-  imports = nixList ./.;
-
   home.packages = with pkgs; [
     gcc
     libcap
