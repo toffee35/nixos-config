@@ -1,1 +1,0 @@
-{ nixList, ... }: { imports = nixList ./.; }
