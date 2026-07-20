@@ -24,7 +24,7 @@ in {
     services.gvfs.enable = true;
     services.tumbler.enable = true;
 
-    home-manager.users.n = {
+    home-manager.users.${config.modules.user.name} = {
       # Bind shortcut only if Hyprland is also enabled
       wayland.windowManager.hyprland.settings.bind = mkIf config.modules.desktop.hyprland.enable [
         "$mod, E, exec, thunar"

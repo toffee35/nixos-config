@@ -1,6 +1,8 @@
 {
   description = "My NixOS configuration flake for Laptop";
 
+  # Binary caches for nix CLI (nix build, nix flake check) on any machine.
+  # System-level caches are configured separately in modules/nix-settings.nix.
   nixConfig = {
     extra-substituters = [
       "https://nix-community.cachix.org"
@@ -50,12 +52,15 @@
         nixos-hardware.nixosModules.lenovo-legion-16ach6h
         ./hosts/laptop/default.nix
         home-manager.nixosModules.home-manager
-        {
+        ({ config, ... }: {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          home-manager.users.n = import ./home.nix;
-          home-manager.extraSpecialArgs = { inherit inputs; };
-        }
+          home-manager.users.${config.modules.user.name} = import ./home.nix;
+          home-manager.extraSpecialArgs = {
+            inherit inputs;
+            username = config.modules.user.name;
+          };
+        })
       ];
     };
   };

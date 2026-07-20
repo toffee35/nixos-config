@@ -13,8 +13,10 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home-manager.users.n = {
-      programs.kitty = {
+    home-manager.users.${config.modules.user.name} = {
+      programs.kitty = let
+        palette = config.modules.theme.palette;
+      in {
         enable = true;
         font = {
           name = "JetBrainsMono Nerd Font";
@@ -24,47 +26,47 @@ in {
           scrollback_lines = 10000;
           enable_audio_bell = false;
           update_check_interval = 0;
-          
-          # Tokyo Night Dark color scheme
-          background = "#1a1b26";
-          foreground = "#a9b1d6";
-          selection_background = "#283457";
-          selection_foreground = "#c0caf5";
-          url_color = "#73daca";
-          cursor = "#c0caf5";
-          
+
+          # Tokyo Night Dark color scheme (from modules/theme.nix)
+          background = palette.bg;
+          foreground = palette.fg;
+          selection_background = palette.selection-bg;
+          selection_foreground = palette.fg-bright;
+          url_color = palette.teal;
+          cursor = palette.fg-bright;
+
           # Tab bar
           tab_bar_style = "powerline";
-          active_tab_background = "#7aa2f7";
-          active_tab_foreground = "#1f2335";
-          inactive_tab_background = "#353749";
-          inactive_tab_foreground = "#a9b1d6";
+          active_tab_background = palette.accent;
+          active_tab_foreground = palette.bg-dark;
+          inactive_tab_background = palette.inactive-tab-bg;
+          inactive_tab_foreground = palette.fg;
 
           # 16 Colors
           # black
-          color0 = "#414868";
-          color8 = "#414868";
+          color0 = palette.muted;
+          color8 = palette.muted;
           # red
-          color1 = "#f7768e";
-          color9 = "#f7768e";
+          color1 = palette.red;
+          color9 = palette.red;
           # green
-          color2 = "#9ece6a";
-          color10 = "#9ece6a";
+          color2 = palette.green;
+          color10 = palette.green;
           # yellow
-          color3 = "#e0af68";
-          color11 = "#e0af68";
+          color3 = palette.yellow;
+          color11 = palette.yellow;
           # blue
-          color4 = "#7aa2f7";
-          color12 = "#7aa2f7";
+          color4 = palette.accent;
+          color12 = palette.accent;
           # magenta
-          color5 = "#bb9af7";
-          color13 = "#bb9af7";
+          color5 = palette.accent2;
+          color13 = palette.accent2;
           # cyan
-          color6 = "#7db9f5";
-          color14 = "#7db9f5";
+          color6 = palette.cyan-alt;
+          color14 = palette.cyan-alt;
           # white
-          color7 = "#a9b1d6";
-          color15 = "#c0caf5";
+          color7 = palette.fg;
+          color15 = palette.fg-bright;
         };
       };
     };

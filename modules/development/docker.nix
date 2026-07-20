@@ -16,7 +16,7 @@ in {
     virtualisation.docker.enable = true;
     
     # Allow user to access docker without sudo
-    users.users.n.extraGroups = [ "docker" ];
+    users.users.${config.modules.user.name}.extraGroups = [ "docker" ];
 
     # Open TCP/UDP ports 1024-65535 to easily access any docker container / dev server from local network
     networking.firewall.allowedTCPPortRanges = [ { from = 1024; to = 65535; } ];

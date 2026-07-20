@@ -13,10 +13,9 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # Allow JetBrains IDEs and other proprietary software
-    nixpkgs.config.allowUnfree = true;
 
-    home-manager.users.n = {
+
+    home-manager.users.${config.modules.user.name} = {
       home.packages = with pkgs; [
         # Python Stack
         python3

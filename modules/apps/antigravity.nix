@@ -13,7 +13,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home-manager.users.n = {
+    home-manager.users.${config.modules.user.name} = {
       home.packages = [
         inputs.antigravity.packages.${pkgs.system}.google-antigravity
         inputs.antigravity.packages.${pkgs.system}.google-antigravity-ide

@@ -16,7 +16,7 @@ in {
     # Enable nix-ld to run unpatched dynamic binaries (important for precompiled CLI tools, etc.)
     programs.nix-ld.enable = true;
 
-    home-manager.users.n = {
+    home-manager.users.${config.modules.user.name} = {
       home.packages = with pkgs; [
         google-chrome
         chromium

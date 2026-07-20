@@ -14,10 +14,10 @@ in {
 
   config = mkIf cfg.enable {
     # Set default shell for user
-    users.users.n.shell = pkgs.zsh;
+    users.users.${config.modules.user.name}.shell = pkgs.zsh;
     programs.zsh.enable = true; # Needed for system shell capabilities
 
-    home-manager.users.n = {
+    home-manager.users.${config.modules.user.name} = {
       programs.zsh = {
         enable = true;
         enableCompletion = true;
