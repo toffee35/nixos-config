@@ -31,17 +31,17 @@ in {
           };
 
           cpu = {
-            format = "  {usage}%";
+            format = "  {usage}%";
             tooltip = true;
           };
 
           memory = {
-            format = "  {used:0.1f}G/{total:0.1f}G";
+            format = "  {used:0.1f}G/{total:0.1f}G";
           };
 
           temperature = {
             critical-threshold = 80;
-            format = " {temperatureC}°C";
+            format = " {temperatureC}°C";
           };
 
           "custom/gpu" = {
@@ -62,12 +62,12 @@ in {
               critical = 15;
             };
             format = "{icon} {capacity}%";
-            format-charging = "⚡ {capacity}%";
-            format-icons = [ "" "" "" "" "" ];
+            format-charging = "⚡ {icon} {capacity}%";
+            format-icons = [ "" "" "" "" "" ];
           };
 
           network = {
-            format-wifi = "  {essid}";
+            format-wifi = "  {essid}";
             format-ethernet = "🔌 {ipaddr}/{cidr}";
             format-disconnected = "⚠️ Disconnected";
           };
