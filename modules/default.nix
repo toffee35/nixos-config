@@ -7,6 +7,7 @@
     ./nix-settings.nix
     ./hardware/nvidia.nix
     ./hardware/legion-rgb.nix
+    ./hardware/boot.nix
     ./desktop/hyprland.nix
     ./desktop/waybar.nix
     ./desktop/hyprlock.nix

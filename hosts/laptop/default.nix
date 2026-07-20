@@ -7,13 +7,6 @@
   ];
 
   # ── Boot & Kernel ──────────────────────────────────────────────────────────
-  boot.loader.grub = {
-    enable = true;
-    device = "nodev";
-    efiSupport = true;
-    configurationLimit = 5;
-  };
-  boot.loader.efi.canTouchEfiVariables = true;
 
   # Lenovo Legion kernel driver for advanced fan control and power profile monitoring
   boot.kernelModules = [ "lenovo-legion-module" ];
