@@ -19,6 +19,7 @@
     ./desktop/kitty.nix
     ./development/docker.nix
     ./development/languages.nix
+    ./development/ollama.nix
     ./apps/default.nix
     ./apps/antigravity.nix
     ./shell/zsh.nix
