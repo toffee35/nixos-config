@@ -11,6 +11,7 @@
     ./desktop/hyprland.nix
     ./desktop/waybar.nix
     ./desktop/hyprlock.nix
+    ./desktop/hypridle.nix
     ./desktop/wofi.nix
     ./desktop/theme-gtk.nix
     ./desktop/sddm.nix
