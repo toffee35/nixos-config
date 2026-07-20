@@ -3,6 +3,7 @@
 with lib;
 let
   cfg = config.modules.desktop.hyprlock;
+  palette = config.modules.theme.palette;
 in {
   options.modules.desktop.hyprlock = {
     enable = mkOption {
@@ -37,9 +38,9 @@ in {
               dots_size = 0.33;
               dots_spacing = 0.15;
               dots_center = true;
-              outer_color = "rgb(122, 162, 247)";
-              inner_color = "rgb(26, 27, 38)";
-              font_color = "rgb(169, 177, 214)";
+              outer_color = "rgb(${lib.removePrefix "#" palette.accent})";
+              inner_color = "rgb(${lib.removePrefix "#" palette.bg})";
+              font_color = "rgb(${lib.removePrefix "#" palette.fg})";
               fade_on_empty = false;
               placeholder_text = "<i>Enter Password...</i>";
               hide_input = false;

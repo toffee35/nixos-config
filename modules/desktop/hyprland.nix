@@ -3,6 +3,7 @@
 with lib;
 let
   cfg = config.modules.desktop.hyprland;
+  palette = config.modules.theme.palette;
 
   touchpad-toggle = pkgs.writeShellScriptBin "touchpad-toggle" ''
     DEVICE=$(${pkgs.hyprland}/bin/hyprctl devices -j | ${pkgs.jq}/bin/jq -r '.mice[] | select(.name | ascii_downcase | contains("touchpad")) | .name' | head -n 1)
@@ -88,8 +89,8 @@ in {
             gaps_in = 5;
             gaps_out = 10;
             border_size = 2;
-            "col.active_border" = "rgba(7aa2f7ee) rgba(bb9af7ee) 45deg";
-            "col.inactive_border" = "rgba(414868aa)";
+            "col.active_border" = "rgba(${lib.removePrefix "#" palette.accent}ee) rgba(${lib.removePrefix "#" palette.accent2}ee) 45deg";
+            "col.inactive_border" = "rgba(${lib.removePrefix "#" palette.muted}aa)";
             layout = "dwindle";
           };
 
