@@ -62,6 +62,8 @@ in {
         enable = true;
         settings = {
           ipc = "on";
+          preload = [ "${./tokyo-night.png}" ];
+          wallpaper = [ ",${./tokyo-night.png}" ];
         };
       };
 
