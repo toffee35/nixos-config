@@ -65,7 +65,6 @@
 
   # ── System Packages (bare minimum) ────────────────────────────────────────
   environment.systemPackages = with pkgs; [
-    git
     vim
     curl
     wget
@@ -73,7 +72,14 @@
   ];
 
   # ── Services ───────────────────────────────────────────────────────────────
-  services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+      PermitRootLogin = "no";
+    };
+  };
 
   system.stateVersion = "26.05";
 }
