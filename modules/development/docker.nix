@@ -18,8 +18,37 @@ in {
     # Allow user to access docker without sudo
     users.users.${config.modules.user.name}.extraGroups = [ "docker" ];
 
-    # Open TCP/UDP ports 1024-65535 to easily access any docker container / dev server from local network
-    networking.firewall.allowedTCPPortRanges = [ { from = 1024; to = 65535; } ];
-    networking.firewall.allowedUDPPortRanges = [ { from = 1024; to = 65535; } ];
+    # Declarative Docker Containers
+    virtualisation.oci-containers = {
+      backend = "docker";
+      containers = {
+        portainer = {
+          image = "portainer/portainer-ce:latest";
+          ports = [ "9000:9000" ];
+          volumes = [
+            "/var/run/docker.sock:/var/run/docker.sock"
+            "portainer_data:/data"
+          ];
+        };
+        transmission = {
+          image = "linuxserver/transmission:latest";
+          ports = [
+            "9091:9091"
+            "51413:51413"
+            "51413:51413/udp"
+          ];
+          environment = {
+            PUID = "1000";
+            PGID = "100";
+            TZ = "Europe/Belgrade";
+          };
+          volumes = [
+            "/home/${config.modules.user.name}/Downloads/transmission/config:/config"
+            "/home/${config.modules.user.name}/Downloads:/downloads"
+            "/home/${config.modules.user.name}/Downloads/transmission/watch:/watch"
+          ];
+        };
+      };
+    };
   };
 }
