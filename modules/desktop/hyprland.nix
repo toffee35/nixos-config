@@ -73,10 +73,48 @@ in {
         enable = true;
         settings = {
           exec-once =
-            [ "hyprpaper" "mako" ]
+            [
+              "hyprpaper"
+              "mako"
+              "google-antigravity-ide"
+              "google-chrome-stable"
+              "telegram-desktop"
+              "blueman-manager"
+              "pavucontrol"
+              "kitty --class btop -e btop"
+              "kitty --class kitty-empty"
+            ]
             ++ optional config.modules.desktop.waybar.enable "waybar";
 
           monitor = ",2560x1600@165,auto,1.25";
+
+          windowrulev2 = [
+            # Workspace 1: Antigravity IDE
+            "workspace 1, class:^(google-antigravity-ide)$"
+            "workspace 1, class:^(google-antigravity)$"
+
+            # Workspace 2: Google Chrome
+            "workspace 2, class:^(google-chrome)$"
+
+            # Workspace 4: Telegram
+            "workspace 4, class:^(org.telegram.desktop)$"
+            "workspace 4, class:^(telegram-desktop)$"
+            "workspace 4, class:^(TelegramDesktop)$"
+
+            # Workspace 5: Utilities and background terminals
+            "workspace 5, class:^(blueman-manager)$"
+            "workspace 5, class:^(pavucontrol)$"
+            "workspace 5, class:^(btop)$"
+            "workspace 5, class:^(kitty-empty)$"
+
+            # Picture-in-Picture rules
+            "float, title:^(Picture-in-Picture)$"
+            "float, title:^(Picture in picture)$"
+            "pin, title:^(Picture-in-Picture)$"
+            "pin, title:^(Picture in picture)$"
+            "keepaspectratio, title:^(Picture-in-Picture)$"
+            "keepaspectratio, title:^(Picture in picture)$"
+          ];
 
           input = {
             kb_layout = "us,ru";
@@ -123,6 +161,9 @@ in {
 
             # Screen lock (Win + L)
             "$mod, L, exec, hyprlock"
+
+            # Pin focused window to all workspaces (Win + P)
+            "$mod, P, pin"
 
             # Touchpad toggle (Fn + F10 maps to XF86TouchpadToggle)
             ", XF86TouchpadToggle, exec, touchpad-toggle"

@@ -28,6 +28,7 @@ in {
         vlc
         lutris
         opencode
+        hmcl
       ];
 
       # Configure MIME associations to open video and audio with VLC by default
@@ -43,11 +44,6 @@ in {
           "audio/wav" = "vlc.desktop";
         };
       };
-
-      # Bind Chrome shortcut only if Hyprland is also enabled
-      wayland.windowManager.hyprland.settings.bind = mkIf config.modules.desktop.hyprland.enable [
-        "$mod, B, exec, google-chrome-stable"
-      ];
     };
   };
 }
