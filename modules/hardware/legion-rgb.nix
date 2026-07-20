@@ -18,10 +18,8 @@ in {
       inputs.l5p-keyboard-rgb.packages.${pkgs.system}.default
     ];
 
-    # Add udev rules for the 2021 Lenovo Legion 5 Pro (product ID c965)
-    # This allows non-root users to write to the keyboard controller
     services.udev.extraRules = ''
-      SUBSYSTEM=="usb", ATTR{idVendor}=="048d", ATTR{idProduct}=="c965", MODE="0666"
+      SUBSYSTEM=="usb", ATTR{idVendor}=="048d", ATTR{idProduct}=="c965", TAG+="uaccess"
     '';
   };
 }
