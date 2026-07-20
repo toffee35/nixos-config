@@ -19,11 +19,11 @@ in {
     # Allow unfree packages globally
     nixpkgs.config.allowUnfree = true;
 
-    # Aggressive daily garbage collection & optimization (delete > 2d)
+    # Safe daily garbage collection & optimization (delete > 14d)
     nix.gc = {
       automatic = true;
       dates = "daily";
-      options = "--delete-older-than 2d";
+      options = "--delete-older-than 14d";
     };
     nix.settings.auto-optimise-store = true;
     nix.optimise = {
@@ -34,6 +34,7 @@ in {
     # System-level binary caches (for the installed system).
     # Note: flake.nix nixConfig sets the same caches for nix CLI on any machine.
     nix.settings = {
+      trusted-users = [ "root" "@wheel" ];
       substituters = [
         "https://cache.nixos.org"
         "https://nix-community.cachix.org"
