@@ -141,8 +141,8 @@ in {
             "float true, match:title Picture in picture"
             "pin true, match:title Picture-in-Picture"
             "pin true, match:title Picture in picture"
-            "keepaspectratio true, match:title Picture-in-Picture"
-            "keepaspectratio true, match:title Picture in picture"
+            "keep_aspect_ratio true, match:title Picture-in-Picture"
+            "keep_aspect_ratio true, match:title Picture in picture"
           ];
 
           input = {
