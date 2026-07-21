@@ -5,6 +5,11 @@ let
   cfg = config.modules.desktop.hyprland;
   palette = config.modules.theme.palette;
 
+  # EASILY EDIT YOUR MONITOR RESOLUTION, REFRESH RATE, AND SCALE HERE:
+  # Format: "name,resolution@refresh_rate,position,scale"
+  # Default scale is 1 (no scaling). Set to e.g. 1.25 for fractional scaling.
+  monitorSettings = ",preferred,auto,1";
+
   touchpad-toggle = pkgs.writeShellScriptBin "touchpad-toggle" ''
     DEVICE=$(${pkgs.hyprland}/bin/hyprctl devices -j | ${pkgs.jq}/bin/jq -r '.mice[] | select(.name | ascii_downcase | contains("touchpad")) | .name' | head -n 1)
 
@@ -43,6 +48,10 @@ in {
     programs.hyprland = {
       enable = true;
       xwayland.enable = true;
+    };
+
+    environment.sessionVariables = {
+      NIXOS_OZONE_GFX_PROVIDER = "wayland";
     };
 
     home-manager.users.${config.modules.user.name} = {
@@ -86,7 +95,7 @@ in {
             ]
             ++ optional config.modules.desktop.waybar.enable "waybar";
 
-          monitor = ",2560x1600@165,auto,1.25";
+          monitor = monitorSettings;
 
           windowrulev2 = [
             # Workspace 1: Antigravity IDE
