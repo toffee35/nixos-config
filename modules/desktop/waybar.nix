@@ -21,13 +21,23 @@ in {
           layer = "top";
           position = "top";
           height = 30;
-          modules-left = [ "hyprland/workspaces" ];
+          spacing = 2;
+          modules-left = [ "hyprland/workspaces" "hyprland/window" ];
           modules-center = [ "clock" ];
           modules-right = [ "pulseaudio" "hyprland/language" "network" "cpu" "memory" "temperature" "custom/gpu" "battery" "tray" ];
 
           "hyprland/workspaces" = {
             disable-scroll = true;
             all-outputs = true;
+            persistent-workspaces = {
+              "*" = [ 1 2 3 4 5 ];
+            };
+          };
+
+          "hyprland/window" = {
+            format = "{}";
+            max-length = 50;
+            separate-outputs = true;
           };
 
           cpu = {
@@ -67,8 +77,9 @@ in {
           };
 
           network = {
-            format-wifi = "  {essid}";
-            format-ethernet = "🔌 {ipaddr}/{cidr}";
+            interval = 2;
+            format-wifi = "  {essid}  󰇚{bandwidthDownBytes}  󰕒{bandwidthUpBytes}";
+            format-ethernet = "🔌 {ipaddr}/{cidr}  󰇚{bandwidthDownBytes}  󰕒{bandwidthUpBytes}";
             format-disconnected = "⚠️ Disconnected";
           };
 
@@ -82,6 +93,7 @@ in {
             format = "🌐 {}";
             format-en = "EN";
             format-ru = "RU";
+            keyboard-name = "ite-tech.-inc.-ite-device(8910)-keyboard";
           };
         };
 
@@ -98,7 +110,7 @@ in {
             border-bottom: 2px solid ${palette.border};
           }
           #workspaces button {
-            padding: 0 8px;
+            padding: 0 5px;
             background-color: transparent;
             color: ${palette.fg};
             border-bottom: 3px solid transparent;
@@ -108,9 +120,13 @@ in {
             color: ${palette.accent};
             border-bottom: 3px solid ${palette.accent};
           }
+          #window {
+            padding: 0 6px;
+            margin: 0 2px;
+          }
           #clock, #battery, #network, #pulseaudio, #cpu, #memory, #temperature, #custom-gpu, #tray, #language {
-            padding: 0 10px;
-            margin: 0 5px;
+            padding: 0 6px;
+            margin: 0 2px;
           }
         '';
       };
