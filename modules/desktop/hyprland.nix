@@ -198,6 +198,19 @@ in {
             "$mod SHIFT, 3, movetoworkspace, 3"
             "$mod SHIFT, 4, movetoworkspace, 4"
             "$mod SHIFT, 5, movetoworkspace, 5"
+
+            # Move active window silently to workspace (Ctrl + Win + number)
+            "$mod CONTROL, 1, movetoworkspacesilent, 1"
+            "$mod CONTROL, 2, movetoworkspacesilent, 2"
+            "$mod CONTROL, 3, movetoworkspacesilent, 3"
+            "$mod CONTROL, 4, movetoworkspacesilent, 4"
+            "$mod CONTROL, 5, movetoworkspacesilent, 5"
+
+            # Move active window inside the workspace (Shift + Win + arrow)
+            "$mod SHIFT, left, movewindow, l"
+            "$mod SHIFT, right, movewindow, r"
+            "$mod SHIFT, up, movewindow, u"
+            "$mod SHIFT, down, movewindow, d"
           ];
 
           # Repeatable media and brightness keys (work when screen is locked)
@@ -218,6 +231,20 @@ in {
             ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
             # Fn+F4: Mute microphone only
             ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+          ];
+
+          # Resize windows (repeatable Ctrl + Win + arrow)
+          binde = [
+            "$mod CONTROL, left, resizeactive, -20 0"
+            "$mod CONTROL, right, resizeactive, 20 0"
+            "$mod CONTROL, up, resizeactive, 0 -20"
+            "$mod CONTROL, down, resizeactive, 0 20"
+          ];
+
+          # Mouse bindings (Win + mouse left/right click)
+          bindm = [
+            "$mod, mouse:272, movewindow"
+            "$mod, mouse:273, resizewindow"
           ];
         };
       };
