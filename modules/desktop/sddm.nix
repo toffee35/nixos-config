@@ -17,11 +17,21 @@ in {
       pkgs.sddm-astronaut
     ];
 
+    services.xserver.enable = true;
+
+    services.displayManager.defaultSession = "hyprland";
+
     services.displayManager.sddm = {
       enable = true;
-      wayland.enable = true;
+      wayland.enable = false;
       theme = "sddm-astronaut-theme";
       extraPackages = [ pkgs.sddm-astronaut ];
+      settings = {
+        Last = {
+          Session = "hyprland.desktop";
+          Username = config.modules.user.name;
+        };
+      };
     };
   };
 }
