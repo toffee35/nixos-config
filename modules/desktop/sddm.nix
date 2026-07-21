@@ -14,7 +14,13 @@ in {
 
   config = mkIf cfg.enable {
     environment.systemPackages = [
-      pkgs.sddm-astronaut
+      (pkgs.sddm-astronaut.override {
+        # Show the actual login name (e.g. "n") instead of the account's GECOS
+        # description ("NixOS User"), which is what UseRealName displays by default.
+        themeConfig = {
+          UseRealName = "false";
+        };
+      })
     ];
 
     services.xserver.enable = true;
@@ -25,7 +31,13 @@ in {
       enable = true;
       wayland.enable = true;
       theme = "sddm-astronaut-theme";
-      extraPackages = [ pkgs.sddm-astronaut ];
+      extraPackages = [
+        (pkgs.sddm-astronaut.override {
+          themeConfig = {
+            UseRealName = "false";
+          };
+        })
+      ];
       settings = {
         Users = {
           RememberLastUser = true;
