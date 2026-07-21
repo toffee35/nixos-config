@@ -32,14 +32,14 @@ in {
       listenPort = cfg.port;
       privateKeyFile = "/etc/wireguard/private.key";
 
-      # Add one entry per client device, e.g.:
-      # peers = [
-      #   {
-      #     publicKey = "<client's public key>";
-      #     allowedIPs = [ "10.100.0.2/32" ];
-      #   }
-      # ];
-      peers = [ ];
+      # Add one entry per client device.
+      peers = [
+        {
+          # phone
+          publicKey = "AWFWdqskF1F9rgxesBkdLHSOMBvBVFU4CIp+TjJM8mY=";
+          allowedIPs = [ "10.100.0.2/32" ];
+        }
+      ];
     };
   };
 }
