@@ -15,9 +15,9 @@ in {
   config = mkIf cfg.enable {
     home-manager.users.${config.modules.user.name} = {
       home.packages = [
-        inputs.antigravity.packages.${pkgs.system}.google-antigravity
-        inputs.antigravity.packages.${pkgs.system}.google-antigravity-ide
-        inputs.antigravity.packages.${pkgs.system}.google-antigravity-cli
+        inputs.antigravity.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity
+        inputs.antigravity.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide
+        inputs.antigravity.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli
       ];
     };
   };

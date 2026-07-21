@@ -15,7 +15,7 @@ in {
   config = mkIf cfg.enable {
     # Install the L5P-Keyboard-RGB utility from flake inputs
     environment.systemPackages = [
-      inputs.l5p-keyboard-rgb.packages.${pkgs.system}.default
+      inputs.l5p-keyboard-rgb.packages.${pkgs.stdenv.hostPlatform.system}.default
     ];
 
     services.udev.extraRules = ''
