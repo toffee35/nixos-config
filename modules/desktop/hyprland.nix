@@ -45,7 +45,17 @@ let
 
   screenshot-region = pkgs.writeShellScriptBin "screenshot-region" ''
     mkdir -p "$HOME/Pictures"
+
+    # Freeze the screen (render-inactive, no zoom lens) so the selection isn't
+    # made against a live/changing view, matching grimblast's --freeze behavior.
+    ${pkgs.hyprpicker}/bin/hyprpicker -rz &
+    PICKER_PID=$!
+    sleep 0.2
+
     GEOM=$(${pkgs.slurp}/bin/slurp)
+
+    kill "$PICKER_PID" 2>/dev/null
+
     [ -z "$GEOM" ] && exit 0
     FILE="$HOME/Pictures/screenshot_$(date +%Y-%m-%d_%H-%M-%S).png"
     ${pkgs.grim}/bin/grim -g "$GEOM" "$FILE"
@@ -83,6 +93,7 @@ in {
         brightnessctl
         grim
         slurp
+        hyprpicker
         screenshot-full
         screenshot-region
       ];
