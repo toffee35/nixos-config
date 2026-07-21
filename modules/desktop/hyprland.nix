@@ -98,32 +98,30 @@ in {
 
           monitor = monitorSettings;
 
-          windowrulev2 = [
+          windowrule = [
             # Workspace 1: Antigravity IDE
-            "workspace 1, class:^(google-antigravity-ide)$"
-            "workspace 1, class:^(google-antigravity)$"
+            "workspace 1, match:class google-antigravity-ide"
+            "workspace 1, match:class google-antigravity"
 
             # Workspace 2: Google Chrome
-            "workspace 2, class:^(google-chrome)$"
+            "workspace 2, match:class google-chrome"
 
             # Workspace 4: Telegram
-            "workspace 4, class:^(org.telegram.desktop)$"
-            "workspace 4, class:^(telegram-desktop)$"
-            "workspace 4, class:^(TelegramDesktop)$"
+            "workspace 4, match:class org.telegram.desktop"
+            "workspace 4, match:class telegram-desktop"
+            "workspace 4, match:class TelegramDesktop"
 
             # Workspace 5: Utilities and background terminals
-            "workspace 5, class:^(blueman-manager)$"
-            "workspace 5, class:^(pavucontrol)$"
-            "workspace 5, class:^(btop)$"
-            "workspace 5, class:^(kitty-empty)$"
+            "workspace 5, match:class blueman-manager"
+            "workspace 5, match:class pavucontrol"
+            "workspace 5, match:class btop"
+            "workspace 5, match:class kitty-empty"
 
             # Picture-in-Picture rules
-            "float, title:^(Picture-in-Picture)$"
-            "float, title:^(Picture in picture)$"
-            "pin, title:^(Picture-in-Picture)$"
-            "pin, title:^(Picture in picture)$"
-            "keepaspectratio, title:^(Picture-in-Picture)$"
-            "keepaspectratio, title:^(Picture in picture)$"
+            "float true, match:title Picture-in-Picture"
+            "float true, match:title Picture in picture"
+            "pin true, match:title Picture-in-Picture"
+            "pin true, match:title Picture in picture"
           ];
 
           input = {
