@@ -12,8 +12,8 @@
   programs.git = {
     enable = true;
     settings.user = {
-      name = "n";
-      email = "n@0NLaptopLegion";
+      name = "toffee35";
+      email = "nailzagru@gmail.com";
     };
   };
 
