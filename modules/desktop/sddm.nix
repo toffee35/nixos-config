@@ -27,9 +27,12 @@ in {
       theme = "sddm-astronaut-theme";
       extraPackages = [ pkgs.sddm-astronaut ];
       settings = {
-        Last = {
-          Session = "hyprland.desktop";
-          Username = config.modules.user.name;
+        Users = {
+          RememberLastUser = true;
+          RememberLastSession = true;
+        };
+        Theme = {
+          Current = "sddm-astronaut-theme";
         };
       };
     };
