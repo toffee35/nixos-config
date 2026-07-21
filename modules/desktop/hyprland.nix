@@ -86,7 +86,7 @@ in {
             [
               "hyprpaper"
               "mako"
-              "[workspace 1] google-antigravity-ide"
+              "[workspace 1] zeditor"
               "[workspace 2 silent] google-chrome-stable"
               "[workspace 4 silent] telegram-desktop"
               "[workspace 5 silent] blueman-manager"
@@ -99,9 +99,8 @@ in {
           monitor = monitorSettings;
 
           windowrule = [
-            # Workspace 1: Antigravity IDE
-            "workspace 1, match:class google-antigravity-ide"
-            "workspace 1, match:class google-antigravity"
+            # Workspace 1: Zed
+            "workspace 1, match:class dev.zed.Zed"
 
             # Workspace 2: Google Chrome
             "workspace 2 silent, match:class google-chrome"
