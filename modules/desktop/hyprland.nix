@@ -86,13 +86,13 @@ in {
             [
               "hyprpaper"
               "mako"
-              "google-antigravity-ide"
-              "google-chrome-stable"
-              "telegram-desktop"
-              "blueman-manager"
-              "pavucontrol"
-              "kitty --class btop -e btop"
-              "kitty --class kitty-empty"
+              "[workspace 1] google-antigravity-ide"
+              "[workspace 2 silent] google-chrome-stable"
+              "[workspace 4 silent] telegram-desktop"
+              "[workspace 5 silent] blueman-manager"
+              "[workspace 5 silent] pavucontrol"
+              "[workspace 5 silent] kitty --class btop -e btop"
+              "[workspace 5 silent] kitty --class kitty-empty"
             ]
             ++ optional config.modules.desktop.waybar.enable "waybar";
 
@@ -104,18 +104,18 @@ in {
             "workspace 1, match:class google-antigravity"
 
             # Workspace 2: Google Chrome
-            "workspace 2, match:class google-chrome"
+            "workspace 2 silent, match:class google-chrome"
 
             # Workspace 4: Telegram
-            "workspace 4, match:class org.telegram.desktop"
-            "workspace 4, match:class telegram-desktop"
-            "workspace 4, match:class TelegramDesktop"
+            "workspace 4 silent, match:class org.telegram.desktop"
+            "workspace 4 silent, match:class telegram-desktop"
+            "workspace 4 silent, match:class TelegramDesktop"
 
             # Workspace 5: Utilities and background terminals
-            "workspace 5, match:class blueman-manager"
-            "workspace 5, match:class pavucontrol"
-            "workspace 5, match:class btop"
-            "workspace 5, match:class kitty-empty"
+            "workspace 5 silent, match:class blueman-manager"
+            "workspace 5 silent, match:class pavucontrol"
+            "workspace 5 silent, match:class btop"
+            "workspace 5 silent, match:class kitty-empty"
 
             # Picture-in-Picture rules
             "float true, match:title Picture-in-Picture"
