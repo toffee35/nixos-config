@@ -20,6 +20,7 @@ in {
       efiSupport = true;
       configurationLimit = 5;
     };
+    boot.loader.timeout = 2;
     boot.loader.efi.canTouchEfiVariables = true;
   };
 }
