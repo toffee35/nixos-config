@@ -52,5 +52,15 @@ in {
       noto-fonts-cjk-sans
       noto-fonts-color-emoji
     ];
+
+    # Enable fontconfig default fonts for proper emoji and fallback rendering
+    fonts.fontconfig = {
+      defaultFonts = {
+        monospace = [ "JetBrainsMono Nerd Font" ];
+        sansSerif = [ "Noto Sans" ];
+        serif = [ "Noto Serif" ];
+        emoji = [ "Noto Color Emoji" ];
+      };
+    };
   };
 }
