@@ -21,6 +21,13 @@ in {
   config = mkIf cfg.enable {
     networking.firewall.allowedUDPPorts = [ cfg.port ];
 
+    # Peers connected over wg0 get full access to whatever's listening on the
+    # host (SSH, Ollama, Docker admin UIs, etc.) — not a per-port allowlist.
+    # Doesn't affect Docker's own published ports (those bypass this firewall
+    # entirely; they're restricted by which IP they're bound to instead, see
+    # modules/development/docker.nix).
+    networking.firewall.trustedInterfaces = [ "wg0" ];
+
     # The private key is generated on-machine and kept outside the (public)
     # git repo — see modules/hardware/wireguard.nix's neighboring README note.
     # Generate it with:
