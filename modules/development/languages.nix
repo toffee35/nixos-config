@@ -33,6 +33,14 @@ in {
         rustc
         cargo
 
+        # Global build tools and libraries for Rust/Python compiling
+        pkg-config
+        openssl
+        glibc.dev
+        gcc
+        gnumake
+        cmake
+
         # JetBrains IDEs
         jetbrains.pycharm
         jetbrains.rust-rover
