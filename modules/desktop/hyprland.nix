@@ -167,6 +167,11 @@ in {
             "$mod, Return, exec, kitty"
             "$mod, Q, killactive,"
 
+            # Application launcher (Wofi)
+            "$mod, R, exec, wofi --show drun"
+            "$mod, D, exec, wofi --show drun"
+            "$mod, SPACE, exec, wofi --show drun"
+
             # Screen lock (Win + L)
             "$mod, L, exec, hyprlock"
 
