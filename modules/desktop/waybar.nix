@@ -23,7 +23,7 @@ in {
           height = 30;
           modules-left = [ "hyprland/workspaces" ];
           modules-center = [ "clock" ];
-          modules-right = [ "pulseaudio" "network" "cpu" "memory" "temperature" "custom/gpu" "battery" "tray" ];
+          modules-right = [ "pulseaudio" "hyprland/language" "network" "cpu" "memory" "temperature" "custom/gpu" "battery" "tray" ];
 
           "hyprland/workspaces" = {
             disable-scroll = true;
@@ -77,6 +77,12 @@ in {
             format-muted = "🔇 Muted";
             on-click = "pavucontrol";
           };
+
+          "hyprland/language" = {
+            format = "🌐 {}";
+            format-en = "EN";
+            format-ru = "RU";
+          };
         };
 
         style = ''
@@ -102,7 +108,7 @@ in {
             color: ${palette.accent};
             border-bottom: 3px solid ${palette.accent};
           }
-          #clock, #battery, #network, #pulseaudio, #cpu, #memory, #temperature, #custom-gpu, #tray {
+          #clock, #battery, #network, #pulseaudio, #cpu, #memory, #temperature, #custom-gpu, #tray, #language {
             padding: 0 10px;
             margin: 0 5px;
           }
