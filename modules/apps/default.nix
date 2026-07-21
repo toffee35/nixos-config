@@ -67,6 +67,7 @@ in {
         google-chrome
         chromium
         telegram-desktop
+        discord
         obsidian
         obs-studio
         ffmpeg

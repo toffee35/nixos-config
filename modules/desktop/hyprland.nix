@@ -119,6 +119,7 @@ in {
               "mako"
               "[workspace 1] zeditor"
               "[workspace 2 silent] google-chrome-stable"
+              "[workspace 3 silent] Discord"
               "[workspace 4 silent] telegram-desktop"
               "[workspace 5 silent] blueman-manager"
               "[workspace 5 silent] pavucontrol"
@@ -135,6 +136,10 @@ in {
 
             # Workspace 2: Google Chrome
             "workspace 2 silent, match:class google-chrome"
+
+            # Workspace 3: Discord
+            "workspace 3 silent, match:class discord"
+            "workspace 3 silent, match:class Discord"
 
             # Workspace 4: Telegram
             "workspace 4 silent, match:class org.telegram.desktop"
