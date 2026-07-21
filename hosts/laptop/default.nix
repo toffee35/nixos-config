@@ -23,9 +23,25 @@
   # ── Hardware: Power Management ─────────────────────────────────────────────
   powerManagement.enable = true;
 
-  # Enable battery conservation mode (limits charge to 60-80% at hardware level)
+  # Enable battery conservation mode by default (limits charge to 60-80% at
+  # hardware level), but leave it group-writable so battery-conservation-toggle
+  # (see below) can flip it to full-charge mode without sudo, e.g. before travel.
   systemd.tmpfiles.rules = [
     "w /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode - - - - 1"
+    "z /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode 0664 root users -"
+  ];
+
+  home-manager.users.${config.modules.user.name}.home.packages = [
+    (pkgs.writeShellScriptBin "battery-conservation-toggle" ''
+      FILE=/sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode
+      if [ "$(cat "$FILE")" = "1" ]; then
+        echo 0 > "$FILE"
+        ${pkgs.libnotify}/bin/notify-send -t 2000 -a "Battery" "Conservation mode" "Disabled — charging to 100%"
+      else
+        echo 1 > "$FILE"
+        ${pkgs.libnotify}/bin/notify-send -t 2000 -a "Battery" "Conservation mode" "Enabled — charging capped ~60-80%"
+      fi
+    '')
   ];
 
   # Dynamic CPU tuning based on load & battery state

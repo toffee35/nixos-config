@@ -24,7 +24,11 @@ in {
       containers = {
         portainer = {
           image = "portainer/portainer-ce:latest";
-          ports = [ "9000:9000" ];
+          # Bound to loopback only: Docker's own iptables rules bypass the
+          # NixOS firewall for published ports, so "0.0.0.0" would expose the
+          # admin UI to the whole LAN (verified via `ss -tlnp` showing it
+          # reachable on all interfaces despite the firewall being active).
+          ports = [ "127.0.0.1:9000:9000" ];
           volumes = [
             "/var/run/docker.sock:/var/run/docker.sock"
             "portainer_data:/data"
@@ -33,7 +37,7 @@ in {
         transmission = {
           image = "linuxserver/transmission:latest";
           ports = [
-            "9091:9091"
+            "127.0.0.1:9091:9091"
             "51413:51413"
             "51413:51413/udp"
           ];
