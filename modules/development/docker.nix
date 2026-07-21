@@ -24,11 +24,14 @@ in {
       containers = {
         portainer = {
           image = "portainer/portainer-ce:latest";
-          # Bound to loopback only: Docker's own iptables rules bypass the
-          # NixOS firewall for published ports, so "0.0.0.0" would expose the
-          # admin UI to the whole LAN (verified via `ss -tlnp` showing it
-          # reachable on all interfaces despite the firewall being active).
-          ports = [ "127.0.0.1:9000:9000" ];
+          # Bound to loopback + the wg0 tunnel address only, not "0.0.0.0":
+          # Docker's own iptables rules bypass the NixOS firewall for published
+          # ports (verified via `ss -tlnp` showing it reachable on all
+          # interfaces despite the firewall being active), so binding to a
+          # specific IP is what actually restricts reachability here — the
+          # admin UI is reachable from the laptop itself and over the
+          # WireGuard tunnel, but not from the raw LAN.
+          ports = [ "127.0.0.1:9000:9000" "10.100.0.1:9000:9000" ];
           volumes = [
             "/var/run/docker.sock:/var/run/docker.sock"
             "portainer_data:/data"
@@ -38,6 +41,7 @@ in {
           image = "linuxserver/transmission:latest";
           ports = [
             "127.0.0.1:9091:9091"
+            "10.100.0.1:9091:9091"
             "51413:51413"
             "51413:51413/udp"
           ];
@@ -53,6 +57,17 @@ in {
           ];
         };
       };
+    };
+
+    # Both containers bind to the wg0 address; make sure the tunnel is up
+    # first, otherwise those specific port bindings fail at container start.
+    systemd.services."docker-portainer" = {
+      after = [ "wireguard-wg0.service" ];
+      requires = [ "wireguard-wg0.service" ];
+    };
+    systemd.services."docker-transmission" = {
+      after = [ "wireguard-wg0.service" ];
+      requires = [ "wireguard-wg0.service" ];
     };
   };
 }
