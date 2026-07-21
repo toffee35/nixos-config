@@ -26,8 +26,11 @@ in {
       # Modesetting is required.
       modesetting.enable = true;
 
-      # Nvidia power management (can cause sleep issues if enabled, keeping false for stability)
-      powerManagement.enable = false;
+      # Required for proper suspend/resume: installs nvidia-suspend/resume/hibernate
+      # systemd units that save/restore VRAM and modeset state. Without this, resuming
+      # from lid-close sleep hits "Failed to apply atomic modeset" and crashes the
+      # Hyprland session (seen in journalctl as nv_drm_atomic_commit errors).
+      powerManagement.enable = true;
       powerManagement.finegrained = false;
 
       # Use the proprietary closed source driver (stable and robust for laptop RTX 3060)
