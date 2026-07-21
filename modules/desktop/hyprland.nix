@@ -35,6 +35,22 @@ let
       ${pkgs.libnotify}/bin/notify-send -t 1500 -a "System" "Touchpad" "Enabled"
     fi
   '';
+
+  screenshot-full = pkgs.writeShellScriptBin "screenshot-full" ''
+    mkdir -p "$HOME/Pictures"
+    FILE="$HOME/Pictures/screenshot_$(date +%Y-%m-%d_%H-%M-%S).png"
+    ${pkgs.grim}/bin/grim "$FILE"
+    ${pkgs.libnotify}/bin/notify-send -t 1500 -a "Screenshot" "Screenshot saved" "$FILE"
+  '';
+
+  screenshot-region = pkgs.writeShellScriptBin "screenshot-region" ''
+    mkdir -p "$HOME/Pictures"
+    GEOM=$(${pkgs.slurp}/bin/slurp)
+    [ -z "$GEOM" ] && exit 0
+    FILE="$HOME/Pictures/screenshot_$(date +%Y-%m-%d_%H-%M-%S).png"
+    ${pkgs.grim}/bin/grim -g "$GEOM" "$FILE"
+    ${pkgs.libnotify}/bin/notify-send -t 1500 -a "Screenshot" "Screenshot saved" "$FILE"
+  '';
 in {
   options.modules.desktop.hyprland = {
     enable = mkOption {
@@ -65,6 +81,10 @@ in {
         btop
         touchpad-toggle
         brightnessctl
+        grim
+        slurp
+        screenshot-full
+        screenshot-region
       ];
 
       # Hyprpaper Wallpaper Service
@@ -179,6 +199,10 @@ in {
 
             # Touchpad toggle (Fn + F10 maps to XF86TouchpadToggle)
             ", XF86TouchpadToggle, exec, touchpad-toggle"
+
+            # Screenshots (Print Screen key, labeled "Druck" on some layouts)
+            ", Print, exec, screenshot-full"
+            "$mod, Print, exec, screenshot-region"
             "$mod, M, exit,"
             "$mod, V, togglefloating,"
             "$mod, F, fullscreen,"
