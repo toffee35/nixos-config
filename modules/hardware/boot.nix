@@ -19,8 +19,9 @@ in {
       device = "nodev";
       efiSupport = true;
       configurationLimit = 5;
+      splashImage = null;
     };
-    boot.loader.timeout = 2;
+    boot.loader.timeout = 1;
     boot.loader.efi.canTouchEfiVariables = true;
   };
 }
