@@ -169,9 +169,9 @@ in {
           };
 
           general = {
-            gaps_in = 5;
-            gaps_out = 10;
-            border_size = 2;
+            gaps_in = 2;
+            gaps_out = 2;
+            border_size = 1;
             "col.active_border" = "rgba(ffffff66)";
             "col.inactive_border" = "rgba(ffffff00)";
             layout = "dwindle";
