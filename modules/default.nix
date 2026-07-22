@@ -9,6 +9,7 @@
     ./hardware/legion-rgb.nix
     ./hardware/boot.nix
     ./hardware/wireguard.nix
+    ./hardware/android-mic.nix
     ./desktop/hyprland.nix
     ./desktop/waybar.nix
     ./desktop/hyprlock.nix
