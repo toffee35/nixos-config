@@ -18,6 +18,10 @@ in {
       enable = true;
       libraries = with pkgs; [
         stdenv.cc.cc
+        # Nvidia driver userspace libs (libcuda.so.1 etc.) - lets unpatched binaries
+        # (e.g. pip/uv-installed PyTorch wheels) find CUDA without manual LD_LIBRARY_PATH.
+        # Kept in sync with the driver package used in modules/hardware/nvidia.nix.
+        config.boot.kernelPackages.nvidiaPackages.stable
         zlib
         fuse3
         alsa-lib
