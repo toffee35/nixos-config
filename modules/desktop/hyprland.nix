@@ -172,13 +172,13 @@ in {
             gaps_in = 5;
             gaps_out = 10;
             border_size = 2;
-            "col.active_border" = "rgba(${lib.removePrefix "#" palette.accent}ee) rgba(${lib.removePrefix "#" palette.accent2}ee) 45deg";
-            "col.inactive_border" = "rgba(${lib.removePrefix "#" palette.muted}aa)";
+            "col.active_border" = "rgba(ffffff66)";
+            "col.inactive_border" = "rgba(ffffff66)";
             layout = "dwindle";
           };
 
           decoration = {
-            rounding = 10;
+            rounding = 3;
             blur = {
               enabled = true;
               size = 3;
@@ -238,12 +238,12 @@ in {
             "$mod, 4, workspace, 4"
             "$mod, 5, workspace, 5"
 
-            # Move active window
-            "$mod SHIFT, 1, movetoworkspace, 1"
-            "$mod SHIFT, 2, movetoworkspace, 2"
-            "$mod SHIFT, 3, movetoworkspace, 3"
-            "$mod SHIFT, 4, movetoworkspace, 4"
-            "$mod SHIFT, 5, movetoworkspace, 5"
+            # Move active window to workspace without following it there
+            "$mod SHIFT, 1, movetoworkspacesilent, 1"
+            "$mod SHIFT, 2, movetoworkspacesilent, 2"
+            "$mod SHIFT, 3, movetoworkspacesilent, 3"
+            "$mod SHIFT, 4, movetoworkspacesilent, 4"
+            "$mod SHIFT, 5, movetoworkspacesilent, 5"
 
             # Move active window silently to workspace (Ctrl + Win + number)
             "$mod CONTROL, 1, movetoworkspacesilent, 1"
