@@ -120,7 +120,7 @@ in {
               "[workspace 1] zeditor"
               "[workspace 2 silent] google-chrome-stable"
               "[workspace 3 silent] Discord"
-              "[workspace 4 silent] telegram-desktop"
+              "[workspace 4 silent] Telegram"
               "[workspace 5 silent] blueman-manager"
               "[workspace 5 silent] pavucontrol"
               "[workspace 5 silent] kitty --class btop -e btop"

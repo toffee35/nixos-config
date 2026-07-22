@@ -75,6 +75,7 @@ in {
         vlc
         lutris
         opencode
+        claude-code
         hmcl
         imv
         xdg-utils
