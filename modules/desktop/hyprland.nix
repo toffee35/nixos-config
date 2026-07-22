@@ -215,6 +215,12 @@ in {
             # Pin focused window to all workspaces (Win + P)
             "$mod, P, pin"
 
+            # Toggle hiding the focused window from screen shares/recordings
+            # (native Hyprland "no_screen_share" rule — window stays visible
+            # to you, screencopy consumers like OBS/Discord/browser share see
+            # a black box in its place instead)
+            "$mod SHIFT, H, setprop, activewindow no_screen_share toggle"
+
             # Touchpad toggle (Fn + F10 maps to XF86TouchpadToggle)
             ", XF86TouchpadToggle, exec, touchpad-toggle"
 
