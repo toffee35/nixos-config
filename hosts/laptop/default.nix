@@ -8,7 +8,12 @@
 
   # ── Boot & Kernel ──────────────────────────────────────────────────────────
 
-  # Lenovo Legion kernel driver for advanced fan control and power profile monitoring
+  # Lenovo Legion kernel driver for advanced fan control and power profile monitoring.
+  # The custom module ships a legion-laptop.ko that collides in name/path with the
+  # in-tree mainline driver of the same name — without blacklisting the stock one,
+  # it wins the module-tree placement and the custom hwmon/fan-control interface
+  # (what legion_cli/legion_gui actually talk to) never appears.
+  boot.blacklistedKernelModules = [ "legion_laptop" ];
   boot.kernelModules = [ "lenovo-legion-module" ];
   boot.extraModulePackages = [ config.boot.kernelPackages.lenovo-legion-module ];
 
