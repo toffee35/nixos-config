@@ -26,6 +26,7 @@ in {
           scrollback_lines = 10000;
           enable_audio_bell = false;
           update_check_interval = 0;
+          confirm_os_window_close = 0;
 
           # Tokyo Night Dark color scheme (from modules/theme.nix)
           background = palette.bg;
