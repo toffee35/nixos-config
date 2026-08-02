@@ -206,11 +206,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785713355,
-        "narHash": "sha256-hg47q7JtKYVV2HAg00o7abNiJhrl5O4m9SLIB3rIPVc=",
+        "lastModified": 1785714104,
+        "narHash": "sha256-lMTtSrAp22PPzxhPERjgoauqGWz/AdVeMTg77BriI5E=",
         "owner": "toffee35",
         "repo": "QuadcastRGB",
-        "rev": "7d030c81274ae81dc27560ee0a538fb524c89442",
+        "rev": "9e253e4fda29d1c16a56f03bfb22507a43a5b021",
         "type": "github"
       },
       "original": {
