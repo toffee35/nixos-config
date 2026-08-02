@@ -12,7 +12,7 @@ hosts/laptop/                # host-specific config + hardware-configuration.nix
 modules/                     # auto-imported by modules/default.nix
   user.nix, theme.nix        # shared user name + Tokyo Night color palette
   nix-settings.nix           # flakes, caches, gc
-  hardware/                  # nvidia, boot (GRUB), legion-rgb, wireguard, android-mic
+  hardware/                  # nvidia, boot (GRUB), legion-rgb, quadcast-rgb, wireguard, android-mic
   desktop/                   # hyprland, waybar, hyprlock, hypridle, wofi, sddm, thunar, kitty, theme-gtk
   development/                # docker, languages (dev toolchains/IDEs), ollama
   apps/                       # browsers, chat, media, mime defaults
@@ -62,6 +62,13 @@ sudo nixos-rebuild switch --flake .#laptop
   not sensitive). Docker's Portainer/Transmission admin UIs are bound to `127.0.0.1` and
   `10.100.0.1` specifically (not `0.0.0.0`) since Docker's own iptables rules bypass the NixOS
   firewall for published ports.
+- **HyperX Quadcast RGB** (`hardware/quadcast-rgb.nix`): builds
+  [Ors1mer/QuadcastRGB](https://github.com/Ors1mer/QuadcastRGB) from source (not in nixpkgs, no
+  upstream flake) and tags the mic's USB ids with `uaccess`, so no `hyperrgb` group or sudo is
+  needed — plug in the mic and run e.g. `quadcastrgb solid 4c0099` (it forks into the background;
+  `killall quadcastrgb` stops it). The mic on this machine is a **Quadcast 2S** (`03f0:02b5`),
+  which upstream only supports in `solid` mode, and only on commits after the v1.0.5 tag — hence
+  the commit pin in the module rather than a release tag.
 - **Android phone as mic** (`hardware/android-mic.nix`): installs `adb` + `audiosource`
   ([gdzx/audiosource](https://github.com/gdzx/audiosource)). Connect via USB, run
   `audiosource run`, approve the mic permission on the phone.

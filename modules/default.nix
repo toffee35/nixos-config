@@ -7,6 +7,7 @@
     ./nix-settings.nix
     ./hardware/nvidia.nix
     ./hardware/legion-rgb.nix
+    ./hardware/quadcast-rgb.nix
     ./hardware/boot.nix
     ./hardware/wireguard.nix
     ./hardware/android-mic.nix
