@@ -26,6 +26,8 @@ in {
           modules-center = [ "clock" ];
           modules-right = [ "pulseaudio" "hyprland/language" "network" "cpu" "memory" "temperature" "custom/gpu" "battery" "tray" ];
 
+          # 1-5 are always drawn; 6-8 (bound in hyprland.nix) show up only while
+          # they exist, i.e. hold a window or are the one you are looking at.
           "hyprland/workspaces" = {
             disable-scroll = true;
             all-outputs = true;
@@ -71,6 +73,10 @@ in {
               warning = 30;
               critical = 15;
             };
+            # Click flips between holding the charge limit and charging to
+            # 100%, see modules/hardware/battery.nix
+            on-click = "battery-charge-toggle";
+            tooltip-format = "{capacity}% ({timeTo})\nClick to switch charge mode";
             format = "{icon} {capacity}%";
             format-charging = "⚡ {icon} {capacity}%";
             format-icons = [ "" "" "" "" "" ];

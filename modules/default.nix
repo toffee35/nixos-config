@@ -9,6 +9,7 @@
     ./hardware/legion-rgb.nix
     ./hardware/quadcast-rgb.nix
     ./hardware/boot.nix
+    ./hardware/battery.nix
     ./hardware/wireguard.nix
     ./hardware/android-mic.nix
     ./desktop/hyprland.nix
@@ -20,6 +21,7 @@
     ./desktop/sddm.nix
     ./desktop/thunar.nix
     ./desktop/kitty.nix
+    ./desktop/easyeffects.nix
     ./development/docker.nix
     ./development/languages.nix
     ./development/ollama.nix

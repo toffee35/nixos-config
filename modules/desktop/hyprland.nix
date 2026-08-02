@@ -188,13 +188,18 @@ in {
 
           animations = {
             enabled = true;
-            bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
+            # Durations are in deciseconds, so 3 = 300ms. Roughly half of the
+            # Hyprland defaults: still visible, but out of the way before the
+            # next keystroke lands. The curve no longer overshoots past 1.0
+            # (was 1.05), since the bounce is what reads as "slow" even when
+            # the duration itself is short.
+            bezier = "myBezier, 0.05, 0.9, 0.1, 1.0";
             animation = [
-              "windows, 1, 5, myBezier"
-              "windowsOut, 1, 5, default, popin 80%"
-              "border, 1, 10, default"
-              "fade, 1, 7, default"
-              "workspaces, 1, 6, default"
+              "windows, 1, 3, myBezier"
+              "windowsOut, 1, 2, myBezier, popin 80%"
+              "border, 1, 4, default"
+              "fade, 1, 2, default"
+              "workspaces, 1, 3, myBezier"
             ];
           };
 
@@ -237,12 +242,16 @@ in {
             "$mod, up, movefocus, u"
             "$mod, down, movefocus, d"
 
-            # Workspaces
+            # Workspaces. 1-5 are always shown in the bar (persistent-workspaces
+            # in waybar.nix); 6-8 only appear there once they hold a window.
             "$mod, 1, workspace, 1"
             "$mod, 2, workspace, 2"
             "$mod, 3, workspace, 3"
             "$mod, 4, workspace, 4"
             "$mod, 5, workspace, 5"
+            "$mod, 6, workspace, 6"
+            "$mod, 7, workspace, 7"
+            "$mod, 8, workspace, 8"
 
             # Move active window to workspace without following it there
             "$mod SHIFT, 1, movetoworkspacesilent, 1"
@@ -250,6 +259,9 @@ in {
             "$mod SHIFT, 3, movetoworkspacesilent, 3"
             "$mod SHIFT, 4, movetoworkspacesilent, 4"
             "$mod SHIFT, 5, movetoworkspacesilent, 5"
+            "$mod SHIFT, 6, movetoworkspacesilent, 6"
+            "$mod SHIFT, 7, movetoworkspacesilent, 7"
+            "$mod SHIFT, 8, movetoworkspacesilent, 8"
 
             # Move active window silently to workspace (Ctrl + Win + number)
             "$mod CONTROL, 1, movetoworkspacesilent, 1"
@@ -257,6 +269,9 @@ in {
             "$mod CONTROL, 3, movetoworkspacesilent, 3"
             "$mod CONTROL, 4, movetoworkspacesilent, 4"
             "$mod CONTROL, 5, movetoworkspacesilent, 5"
+            "$mod CONTROL, 6, movetoworkspacesilent, 6"
+            "$mod CONTROL, 7, movetoworkspacesilent, 7"
+            "$mod CONTROL, 8, movetoworkspacesilent, 8"
 
             # Move active window inside the workspace (Shift + Win + arrow)
             "$mod SHIFT, left, movewindow, l"

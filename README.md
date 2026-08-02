@@ -12,8 +12,8 @@ hosts/laptop/                # host-specific config + hardware-configuration.nix
 modules/                     # auto-imported by modules/default.nix
   user.nix, theme.nix        # shared user name + Tokyo Night color palette
   nix-settings.nix           # flakes, caches, gc
-  hardware/                  # nvidia, boot (GRUB), legion-rgb, quadcast-rgb, wireguard, android-mic
-  desktop/                   # hyprland, waybar, hyprlock, hypridle, wofi, sddm, thunar, kitty, theme-gtk
+  hardware/                  # nvidia, boot (GRUB), battery, legion-rgb, quadcast-rgb, wireguard, android-mic
+  desktop/                   # hyprland, waybar, hyprlock, hypridle, wofi, sddm, thunar, kitty, theme-gtk, easyeffects
   development/                # docker, languages (dev toolchains/IDEs), ollama
   apps/                       # browsers, chat, media, mime defaults
   shell/                      # zsh
@@ -48,8 +48,18 @@ sudo nixos-rebuild switch --flake .#laptop
   override manually (e.g. force performance while on battery), use
   `sudo auto-cpufreq --force=performance|powersave|reset` — it persists until reset instead of
   being silently reverted on the next poll.
-- **Battery conservation mode**: capped at 60-80% charge by default at every boot. Toggle to
-  100%-charge mode without sudo with `battery-conservation-toggle`.
+- **Battery charge limit** (`hardware/battery.nix`): held near **80%** (`modules.hardware.battery.limit`).
+  This laptop has no `charge_control_end_threshold` — the only knob is ideapad's binary
+  `conservation_mode`, whose own cap sits around 60% — so the limit is approximated: a 1-minute
+  timer flips that flag on above 80% and off below 77% (`hysteresis`). Click the battery in
+  waybar, or run `battery-charge-toggle`, to switch between the limit and charging to 100%; the
+  mode lives in `/run`, so every boot starts capped again.
+- **EasyEffects** (`desktop/easyeffects.nix`): enabled through the home-manager service, which
+  installs it and runs it in the background so effects apply without the window open. No presets
+  are declared in Nix on purpose — those would be read-only in the store and the GUI could not
+  edit them, so `~/.config/easyeffects` stays the source of truth. RNNoise needs no extra package:
+  the nixpkgs build links `librnnoise` as the built-in Noise Reduction plugin, and DeepFilterNet
+  ships with it as a LADSPA plugin.
 - **WireGuard** (`hardware/wireguard.nix`): LAN-only VPN server on `wg0` (`10.100.0.1/24`,
   `51820/udp`), trusted for full host access once connected. The server's private key is **not**
   in this repo (it's public on GitHub) — generate it on the machine, outside git:
