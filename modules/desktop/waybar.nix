@@ -4,12 +4,63 @@ with lib;
 let
   cfg = config.modules.desktop.waybar;
   palette = config.modules.theme.palette;
+
+  # Replaces waybar's own hyprland/language module, which cannot read this
+  # keyboard: it looks for the last "(" in the event to find where the device
+  # name ends, and this device is called ite-device(8910)-keyboard. The layout
+  # name is then parsed out of the wrong place, and it only accidentally works
+  # for layouts that carry a parenthesis themselves — "English (US)" resolves,
+  # "Russian" does not and the label disappears.
+  #
+  # Here the device is matched exactly instead, and the layout is whatever
+  # follows it, so parentheses and commas in either name are harmless.
+  languageIndicator = pkgs.writeShellScriptBin "waybar-language" ''
+    set -u
+
+    label() {
+      case "$1" in
+        ${concatStringsSep "\n        " (mapAttrsToList
+            (keymap: text: ''${escapeShellArg keymap}) printf '%s\n' ${escapeShellArg text} ;;'')
+            cfg.languageLabels)}
+        *) printf '%s\n' "$1" ;;
+      esac
+    }
+
+    # The internal keyboard, resolved at runtime rather than hardcoded, so an
+    # external keyboard cannot take the indicator over.
+    keyboard=$(${pkgs.hyprland}/bin/hyprctl devices -j \
+      | ${pkgs.jq}/bin/jq -r 'first(.keyboards[] | select(.main) | .name)')
+
+    label "$(${pkgs.hyprland}/bin/hyprctl devices -j \
+      | ${pkgs.jq}/bin/jq -r --arg kb "$keyboard" \
+          'first(.keyboards[] | select(.name == $kb) | .active_keymap)')"
+
+    ${pkgs.socat}/bin/socat -u \
+      "UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" - \
+      | while IFS= read -r event; do
+          case "$event" in
+            "activelayout>>$keyboard,"*) label "''${event#activelayout>>$keyboard,}" ;;
+          esac
+        done
+  '';
 in {
   options.modules.desktop.waybar = {
     enable = mkOption {
       type = types.bool;
       default = true;
       description = "Enable Waybar status bar with system monitoring";
+    };
+
+    languageLabels = mkOption {
+      type = types.attrsOf types.str;
+      default = {
+        "English (US)" = "EN";
+        "Russian" = "RU";
+      };
+      description = ''
+        Keyboard layout names as Hyprland reports them, mapped to what the bar
+        should show. Anything not listed is displayed as-is.
+      '';
     };
   };
 
@@ -24,7 +75,7 @@ in {
           spacing = 2;
           modules-left = [ "hyprland/workspaces" "hyprland/window" ];
           modules-center = [ "clock" ];
-          modules-right = [ "pulseaudio" "hyprland/language" "network" "cpu" "memory" "temperature" "custom/gpu" "battery" "tray" ];
+          modules-right = [ "pulseaudio" "custom/language" "network" "cpu" "memory" "temperature" "custom/gpu" "battery" "tray" ];
 
           # 1-5 are always drawn; 6-8 (bound in hyprland.nix) show up only while
           # they exist, i.e. hold a window or are the one you are looking at.
@@ -95,11 +146,11 @@ in {
             on-click = "pavucontrol";
           };
 
-          "hyprland/language" = {
+          "custom/language" = {
+            exec = "${languageIndicator}/bin/waybar-language";
             format = "🌐 {}";
-            format-en = "EN";
-            format-ru = "RU";
-            keyboard-name = "ite-tech.-inc.-ite-device(8910)-keyboard";
+            restart-interval = 5; # the script streams, restart it if it ever dies
+            tooltip = false;
           };
         };
 
@@ -130,7 +181,7 @@ in {
             padding: 0 6px;
             margin: 0 2px;
           }
-          #clock, #battery, #network, #pulseaudio, #cpu, #memory, #temperature, #custom-gpu, #tray, #language {
+          #clock, #battery, #network, #pulseaudio, #cpu, #memory, #temperature, #custom-gpu, #tray, #custom-language {
             padding: 0 6px;
             margin: 0 2px;
           }
