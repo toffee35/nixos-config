@@ -7,8 +7,10 @@
 {
   imports =
     let
+      # Only this very file is skipped. Excluding every default.nix would drop
+      # real modules: modules/apps/default.nix is one.
       isModule = path:
-        lib.hasSuffix ".nix" (toString path) && baseNameOf path != "default.nix";
+        lib.hasSuffix ".nix" (toString path) && toString path != toString ./default.nix;
     in
     builtins.filter isModule (lib.filesystem.listFilesRecursive ./.);
 }
