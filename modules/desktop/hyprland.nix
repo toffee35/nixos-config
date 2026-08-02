@@ -5,10 +5,6 @@ let
   cfg = config.modules.desktop.hyprland;
   palette = config.modules.theme.palette;
 
-  # EASILY EDIT YOUR MONITOR RESOLUTION, REFRESH RATE, AND SCALE HERE:
-  # Format: "name,resolution@refresh_rate,position,scale"
-  # Default scale is 1 (no scaling). Set to e.g. 1.25 for fractional scaling.
-  monitorSettings = ",preferred,auto,1";
 
   touchpad-toggle = pkgs.writeShellScriptBin "touchpad-toggle" ''
     DEVICE=$(${pkgs.hyprland}/bin/hyprctl devices -j | ${pkgs.jq}/bin/jq -r '.mice[] | select(.name | ascii_downcase | contains("touchpad")) | .name' | head -n 1)
@@ -67,6 +63,16 @@ in {
       type = types.bool;
       default = true;
       description = "Enable Hyprland window manager";
+    };
+
+    monitors = mkOption {
+      type = types.listOf types.str;
+      default = [ ",preferred,auto,1" ];
+      example = [ "eDP-1,2560x1600@165,0x0,1" "HDMI-A-1,preferred,auto,1" ];
+      description = ''
+        Hyprland monitor lines, "name,resolution@refresh,position,scale".
+        The default catches every output with its preferred mode, unscaled.
+      '';
     };
   };
 
@@ -128,7 +134,7 @@ in {
             ]
             ++ optional config.modules.desktop.waybar.enable "waybar";
 
-          monitor = monitorSettings;
+          monitor = cfg.monitors;
 
           windowrule = [
             # Workspace 1: Zed
