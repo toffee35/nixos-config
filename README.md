@@ -87,7 +87,9 @@ sudo nixos-rebuild switch --flake .#laptop
   systemd's `73-seat-late.rules` — that is the rule turning `TAG+="uaccess"` into an actual ACL,
   so a rule numbered 99 (what `services.udev.extraRules` produces) is silently too late and
   leaves the mic root-only. `services.quadcastrgb.arguments` sets the lights via a systemd user
-  service on login; the mic forgets them whenever it loses power. Manually:
+  service on login. The mic forgets them whenever it loses power, and the daemon quits by itself
+  whenever the mic stops answering — muting it is enough — so the service restarts every 5s
+  (`Restart=always`, no rate limit), which also re-applies the colour after a replug. Manually:
   `quadcastrgb solid 4c0099` (forks into the background, `killall quadcastrgb` stops it); this
   model is a **Quadcast 2S** (`03f0:02b5`), which upstream drives in `solid` mode only.
 - **Android phone as mic** (`hardware/android-mic.nix`): installs `adb` + `audiosource`
