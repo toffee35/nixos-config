@@ -62,16 +62,20 @@ sudo nixos-rebuild switch --flake .#laptop
   not sensitive). Docker's Portainer/Transmission admin UIs are bound to `127.0.0.1` and
   `10.100.0.1` specifically (not `0.0.0.0`) since Docker's own iptables rules bypass the NixOS
   firewall for published ports.
-- **HyperX Quadcast RGB** (`hardware/quadcast-rgb.nix`): builds
-  [Ors1mer/QuadcastRGB](https://github.com/Ors1mer/QuadcastRGB) from source (not in nixpkgs, no
-  upstream flake) and tags the mic's USB ids with `uaccess`, so no `hyperrgb` group or sudo is
-  needed — plug in the mic and run e.g. `quadcastrgb solid 4c0099` (it forks into the background;
-  `killall quadcastrgb` stops it). The mic on this machine is a **Quadcast 2S** (`03f0:02b5`),
-  which upstream only supports in `solid` mode, and only on commits after the v1.0.5 tag — hence
-  the commit pin in the module rather than a release tag. It also carries a patch
-  ([PR #32](https://github.com/Ors1mer/QuadcastRGB/pull/32)): this mic acknowledges the colour
-  packets in a form upstream rejects, so without it the daemon quits before lighting anything.
-  Drop the patch once it is merged.
+- **HyperX Quadcast RGB** (`hardware/quadcast-rgb.nix`): thin wrapper over the `quadcastrgb`
+  flake input, which is **our own fork** ([toffee35/QuadcastRGB](https://github.com/toffee35/QuadcastRGB),
+  branch `flake-and-qs2s-fix`) because two things are still pending upstream:
+  [PR #33](https://github.com/Ors1mer/QuadcastRGB/pull/33) adds the flake + NixOS module, and
+  [PR #32](https://github.com/Ors1mer/QuadcastRGB/pull/32) fixes the Quadcast 2S — this mic
+  acknowledges the colour packets in a form upstream rejects, so without it the daemon quits
+  before lighting anything. **Point the input back at `github:Ors1mer/QuadcastRGB` once both are
+  merged.** The module's udev rule lands in `60-quadcastrgb.rules`, which must sort before
+  systemd's `73-seat-late.rules` — that is the rule turning `TAG+="uaccess"` into an actual ACL,
+  so a rule numbered 99 (what `services.udev.extraRules` produces) is silently too late and
+  leaves the mic root-only. `services.quadcastrgb.arguments` sets the lights via a systemd user
+  service on login; the mic forgets them whenever it loses power. Manually:
+  `quadcastrgb solid 4c0099` (forks into the background, `killall quadcastrgb` stops it); this
+  model is a **Quadcast 2S** (`03f0:02b5`), which upstream drives in `solid` mode only.
 - **Android phone as mic** (`hardware/android-mic.nix`): installs `adb` + `audiosource`
   ([gdzx/audiosource](https://github.com/gdzx/audiosource)). Connect via USB, run
   `audiosource run`, approve the mic permission on the phone.
