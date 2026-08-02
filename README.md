@@ -9,7 +9,7 @@ flake.nix                    # inputs + nixosConfigurations.laptop
 disko.nix                    # LUKS + btrfs partitioning (/, /home, /nix subvolumes)
 home.nix                     # top-level home-manager config (git, gh, zoxide, fzf)
 hosts/laptop/                # host-specific config + hardware-configuration.nix
-modules/                     # auto-imported by modules/default.nix
+modules/                     # every .nix file here is auto-imported by modules/default.nix
   user.nix, theme.nix        # shared user name + Tokyo Night color palette
   nix-settings.nix           # flakes, caches, gc
   hardware/                  # nvidia, boot (GRUB), battery, legion-rgb, quadcast-rgb, wireguard, android-mic
@@ -72,6 +72,10 @@ sudo nixos-rebuild switch --flake .#laptop
   not sensitive). Docker's Portainer/Transmission admin UIs are bound to `127.0.0.1` and
   `10.100.0.1` specifically (not `0.0.0.0`) since Docker's own iptables rules bypass the NixOS
   firewall for published ports.
+- **Legion keyboard RGB** (`hardware/legion-rgb.nix`): ships its udev rule as a package named
+  `60-l5p-keyboard-rgb.rules` for the same ordering reason as the microphone below — as
+  `services.udev.extraRules` the `uaccess` tag was set too late to become an ACL, and the
+  keyboard was root-only.
 - **HyperX Quadcast RGB** (`hardware/quadcast-rgb.nix`): thin wrapper over the `quadcastrgb`
   flake input, which is **our own fork** ([toffee35/QuadcastRGB](https://github.com/toffee35/QuadcastRGB),
   branch `flake-and-qs2s-fix`) because two things are still pending upstream:
@@ -92,6 +96,16 @@ sudo nixos-rebuild switch --flake .#laptop
 - **SDDM astronaut theme** (`desktop/sddm.nix`): `UseRealName` is overridden off via the
   package's `themeConfig`, so the login field shows the actual username instead of the account's
   GECOS description.
+- **Keyboard layout in the bar** (`desktop/waybar.nix`): waybar's own `hyprland/language` module
+  cannot read this laptop's keyboard. It locates the device/layout boundary in the event by the
+  last `(`, and the device is called `ite-device(8910)-keyboard`, so the layout is parsed out of
+  the wrong place — it worked for `English (US)` only because that name happens to contain a
+  parenthesis too, and `Russian` came out blank. Replaced by `custom/language`, a script that
+  matches the device exactly and streams Hyprland's event socket. Labels are configurable via
+  `modules.desktop.waybar.languageLabels`; the keyboard is resolved at runtime (`main: true`)
+  instead of being hardcoded.
+- **Monitors** (`desktop/hyprland.nix`): `modules.desktop.hyprland.monitors`, a list of Hyprland
+  `name,resolution@refresh,position,scale` lines. Defaults to every output at its preferred mode.
 - **Screenshots** (`desktop/hyprland.nix`): `Print` = full screen, `SUPER+Print` = region select
   (screen freezes via `hyprpicker -rz` during selection, like grimblast's `--freeze`). Saved to
   `~/Pictures`.
@@ -100,5 +114,6 @@ sudo nixos-rebuild switch --flake .#laptop
 
 ## Adding a new module
 
-Copy the shape of an existing one under `modules/<category>/`, add an `enable` option, wrap
-`config` in `mkIf cfg.enable`, then list the file in `modules/default.nix`'s `imports`.
+Copy the shape of an existing one under `modules/<category>/`, add an `enable` option and wrap
+`config` in `mkIf cfg.enable`. Nothing has to be registered: `modules/default.nix` imports every
+`.nix` file under `modules/` recursively.
