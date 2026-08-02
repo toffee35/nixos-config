@@ -1,32 +1,14 @@
-# Auto-imports all modules. Each module has its own `enable` option (default: true).
-# To disable a module, set `modules.<category>.<name>.enable = false` in the host config.
+# Auto-imports every .nix file in this directory tree, so a new module only has
+# to be created, not registered. Each module has its own `enable` option
+# (default: true). To disable a module, set `modules.<category>.<name>.enable
+# = false` in the host config.
+{ lib, ... }:
+
 {
-  imports = [
-    ./user.nix
-    ./theme.nix
-    ./nix-settings.nix
-    ./hardware/nvidia.nix
-    ./hardware/legion-rgb.nix
-    ./hardware/quadcast-rgb.nix
-    ./hardware/boot.nix
-    ./hardware/battery.nix
-    ./hardware/wireguard.nix
-    ./hardware/android-mic.nix
-    ./desktop/hyprland.nix
-    ./desktop/waybar.nix
-    ./desktop/hyprlock.nix
-    ./desktop/hypridle.nix
-    ./desktop/wofi.nix
-    ./desktop/theme-gtk.nix
-    ./desktop/sddm.nix
-    ./desktop/thunar.nix
-    ./desktop/kitty.nix
-    ./desktop/easyeffects.nix
-    ./development/docker.nix
-    ./development/languages.nix
-    ./development/ollama.nix
-    ./apps/default.nix
-    ./apps/antigravity.nix
-    ./shell/zsh.nix
-  ];
+  imports =
+    let
+      isModule = path:
+        lib.hasSuffix ".nix" (toString path) && baseNameOf path != "default.nix";
+    in
+    builtins.filter isModule (lib.filesystem.listFilesRecursive ./.);
 }
