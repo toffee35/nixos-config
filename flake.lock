@@ -199,6 +199,27 @@
         "type": "github"
       }
     },
+    "quadcastrgb": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1785704112,
+        "narHash": "sha256-G5iBggnDtRDp2Pyv/zdsHpAKx3SfsvrJG9ImhNAkHp4=",
+        "owner": "toffee35",
+        "repo": "QuadcastRGB",
+        "rev": "51bcf59a9909cbe9e56c17aa8e2eebc392c7e33d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "toffee35",
+        "ref": "flake-and-qs2s-fix",
+        "repo": "QuadcastRGB",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "antigravity": "antigravity",
@@ -206,7 +227,8 @@
         "home-manager": "home-manager",
         "l5p-keyboard-rgb": "l5p-keyboard-rgb",
         "nixos-hardware": "nixos-hardware",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_2",
+        "quadcastrgb": "quadcastrgb"
       }
     },
     "rust-overlay": {

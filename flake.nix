@@ -40,9 +40,17 @@
       url = "github:jacopone/antigravity-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Own fork: carries the flake/module plus the Quadcast 2S acknowledgement
+    # fix that is still pending upstream as PR #32. Point this back at
+    # github:Ors1mer/QuadcastRGB once both are merged.
+    quadcastrgb = {
+      url = "github:toffee35/QuadcastRGB/flake-and-qs2s-fix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, disko, home-manager, nixos-hardware, l5p-keyboard-rgb, antigravity, ... }@inputs: {
+  outputs = { self, nixpkgs, disko, home-manager, nixos-hardware, l5p-keyboard-rgb, antigravity, quadcastrgb, ... }@inputs: {
     nixosConfigurations.laptop = nixpkgs.lib.nixosSystem {
       specialArgs = { inherit inputs; };
       modules = [
