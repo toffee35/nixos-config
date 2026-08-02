@@ -50,6 +50,19 @@ let
     { vid = "03f0"; pid = "09af"; } # Quadcast 2
     { vid = "03f0"; pid = "02b5"; } # Quadcast 2S
   ];
+
+  # NOT services.udev.extraRules: that lands in 99-local.rules, and systemd's
+  # 73-seat-late.rules is what turns TAG=="uaccess" into an actual ACL — by the
+  # time 99 adds the tag, rule 73 has already been evaluated and the ACL is
+  # never applied (verified live: no ACL on the mic's /dev/bus/usb node). The
+  # filename must sort before 73, hence a rules package.
+  udevRules = pkgs.writeTextFile {
+    name = "quadcastrgb-udev-rules";
+    destination = "/etc/udev/rules.d/60-quadcastrgb.rules";
+    text = concatMapStrings ({ vid, pid }: ''
+      SUBSYSTEM=="usb", ATTR{idVendor}=="${vid}", ATTR{idProduct}=="${pid}", TAG+="uaccess"
+    '') deviceIds;
+  };
 in {
   options.modules.hardware.quadcast-rgb = {
     enable = mkOption {
@@ -64,8 +77,6 @@ in {
 
     # Upstream documents a "hyperrgb" group + MODE=0660; uaccess grants the
     # locally logged-in user the same access without a group to manage.
-    services.udev.extraRules = concatMapStrings ({ vid, pid }: ''
-      SUBSYSTEM=="usb", ATTR{idVendor}=="${vid}", ATTR{idProduct}=="${pid}", TAG+="uaccess"
-    '') deviceIds;
+    services.udev.packages = [ udevRules ];
   };
 }
