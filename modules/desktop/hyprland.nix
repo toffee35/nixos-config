@@ -156,7 +156,7 @@ in {
             "workspace 5 silent, match:class blueman-manager"
             "workspace 5 silent, match:class pavucontrol"
             "workspace 5 silent, match:class btop"
-            "workspace 5 silent, match:class kitty-empty"
+            "workspace 5 silent, match:class easyeffects"
 
             # Picture-in-Picture rules
             "float true, match:title Picture-in-Picture"
