@@ -68,7 +68,10 @@ sudo nixos-rebuild switch --flake .#laptop
   needed — plug in the mic and run e.g. `quadcastrgb solid 4c0099` (it forks into the background;
   `killall quadcastrgb` stops it). The mic on this machine is a **Quadcast 2S** (`03f0:02b5`),
   which upstream only supports in `solid` mode, and only on commits after the v1.0.5 tag — hence
-  the commit pin in the module rather than a release tag.
+  the commit pin in the module rather than a release tag. It also carries a patch
+  ([PR #32](https://github.com/Ors1mer/QuadcastRGB/pull/32)): this mic acknowledges the colour
+  packets in a form upstream rejects, so without it the daemon quits before lighting anything.
+  Drop the patch once it is merged.
 - **Android phone as mic** (`hardware/android-mic.nix`): installs `adb` + `audiosource`
   ([gdzx/audiosource](https://github.com/gdzx/audiosource)). Connect via USB, run
   `audiosource run`, approve the mic permission on the phone.

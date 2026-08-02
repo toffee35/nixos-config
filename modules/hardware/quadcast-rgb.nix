@@ -18,6 +18,18 @@ let
       hash = "sha256-9u/7hYehAdyTUz8Anxe0d3J8UacZWggGi1vIP3SUTfA=";
     };
 
+    # Without this the Quadcast 2S never lights up: upstream only accepts one
+    # form of packet acknowledgement, and this mic answers the colour packets
+    # with another one (0x45, command echoed in rsp[1]), so the daemon bails
+    # out before sending any colour. Submitted upstream, drop once merged.
+    patches = [
+      (pkgs.fetchpatch {
+        name = "qs2s-alternative-data-reply.patch";
+        url = "https://github.com/Ors1mer/QuadcastRGB/pull/32.patch";
+        hash = "sha256-3eAKn8xHB9IPFrSUiI5N+dObDp/03dH4+JAkgdqlNmM=";
+      })
+    ];
+
     buildInputs = [ pkgs.libusb1 ];
 
     # `make install` hardcodes $HOME/.local, so build only and install by hand.
