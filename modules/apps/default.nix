@@ -80,6 +80,7 @@ in {
         lutris
         opencode
         claude-code
+        codex
         hmcl
         imv
         xdg-utils
