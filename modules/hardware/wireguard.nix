@@ -43,7 +43,7 @@ in {
       peers = [
         {
           # phone
-          publicKey = "AWFWdqskF1F9rgxesBkdLHSOMBvBVFU4CIp+TjJM8mY=";
+          publicKey = "ednHQ85SH5bUQbypz9FHErlEioGLMzVXjoYF8rRzyh8=";
           allowedIPs = [ "10.100.0.2/32" ];
         }
       ];
