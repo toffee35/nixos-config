@@ -38,8 +38,7 @@ in {
         openssl
         glibc.dev
         gcc
-        gnumake
-        cmake
+        just
 
         # JetBrains IDEs
         jetbrains.pycharm
