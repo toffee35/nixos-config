@@ -73,6 +73,14 @@
   };
 
   # ── Hardware: Audio ────────────────────────────────────────────────────────
+
+  # Without this pipewire runs as SCHED_OTHER with "Max realtime priority 0",
+  # so its audio thread gets preempted by ordinary processes whenever the
+  # machine is busy. That shows up as crackling under load (many streams in a
+  # Discord call, say) while idle playback stays clean — xruns were piling up
+  # on alsa_output.pci-0000_05_00.6.analog-stereo.
+  security.rtkit.enable = true;
+
   services.pipewire = {
     enable = true;
     alsa.enable = true;
