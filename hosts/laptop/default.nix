@@ -90,6 +90,14 @@
     isNormalUser = true;
     description = "NixOS User";
     extraGroups = [ "networkmanager" "wheel" "audio" "video" ];
+
+    # Phone's SSH key. Only the PUBLIC half lives here — safe to commit; the
+    # private half lives on the phone alone and is never stored in this repo.
+    # Password auth is off (see services.openssh below), so this list is the
+    # only way in over SSH.
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILrzYIFt3FDb89y0repJSLZrO/gmTnPWr+POb1S14urq phone@0NLaptopLegion"
+    ];
   };
 
   # ── System Packages (bare minimum) ────────────────────────────────────────
