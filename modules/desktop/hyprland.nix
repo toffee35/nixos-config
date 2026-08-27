@@ -123,25 +123,27 @@ in {
             [
               "hyprpaper"
               "mako"
-              "[workspace 1] zeditor"
+              "[workspace 1] rust-rover"
               "[workspace 2 silent] google-chrome-stable"
+              "[workspace 2 silent] chromium"
               "[workspace 3 silent] Discord"
               "[workspace 4 silent] Telegram"
               "[workspace 5 silent] blueman-manager"
               "[workspace 5 silent] pavucontrol"
               "[workspace 5 silent] kitty --class btop -e btop"
-              "[workspace 5 silent] kitty --class kitty-empty"
+              "[workspace 5 silent] easyeffects"
             ]
             ++ optional config.modules.desktop.waybar.enable "waybar";
 
           monitor = cfg.monitors;
 
           windowrule = [
-            # Workspace 1: Zed
-            "workspace 1, match:class dev.zed.Zed"
+            # Workspace 1: RustRover
+            "workspace 1, match:class jetbrains-rustrover"
 
-            # Workspace 2: Google Chrome
+            # Workspace 2: Google Chrome and Chromium
             "workspace 2 silent, match:class google-chrome"
+            "workspace 2 silent, match:class chromium-browser"
 
             # Workspace 3: Discord
             "workspace 3 silent, match:class discord"
@@ -156,7 +158,7 @@ in {
             "workspace 5 silent, match:class blueman-manager"
             "workspace 5 silent, match:class pavucontrol"
             "workspace 5 silent, match:class btop"
-            "workspace 5 silent, match:class easyeffects"
+            "workspace 5 silent, match:class com.github.wwmm.easyeffects"
 
             # Picture-in-Picture rules
             "float true, match:title Picture-in-Picture"
