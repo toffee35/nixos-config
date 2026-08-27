@@ -35,6 +35,26 @@ in {
           volumes = [
             "/var/run/docker.sock:/var/run/docker.sock"
             "portainer_data:/data"
+            "/etc/portainer/admin-password:/run/admin-password:ro"
+          ];
+          # Bootstraps the admin account on first start, so the UI never sits in
+          # its "no admin yet" state and never expires into /timeout.html.
+          # The username is always `admin` — portainer has no flag for it, and
+          # authentication cannot be turned off at all. Rename in the UI if
+          # wanted. Ignored once an admin exists in portainer_data.
+          #
+          # The password is kept out of this (public) repo, same as the
+          # WireGuard key — see modules/hardware/wireguard.nix. Create it with:
+          #   sudo install -d -m 700 /etc/portainer
+          #   printf '1111' | sudo tee /etc/portainer/admin-password > /dev/null
+          #   sudo chmod 600 /etc/portainer/admin-password
+          #
+          # `-H` pre-connects the local Docker socket as an environment named
+          # "primary" at first start, so the UI skips the onboarding wizard and
+          # no agent container is needed.
+          cmd = [
+            "--admin-password-file" "/run/admin-password"
+            "-H" "unix:///var/run/docker.sock"
           ];
         };
         transmission = {
@@ -57,6 +77,48 @@ in {
           ];
         };
       };
+    };
+
+    # Portainer stores its settings in portainer.db inside the volume, not in a
+    # config file, so this one setting can't be a Nix file — it has to be an
+    # API call against the running instance. Declaring it as a oneshot keeps it
+    # in the config anyway: it re-applies on every boot and after a volume wipe,
+    # instead of being a command someone has to remember to run by hand.
+    #
+    # What it does: portainer requires a 12-character admin password and flags
+    # shorter ones with forceChangePassword, which makes the UI demand a change
+    # at every login. Lowering RequiredPasswordLength clears that flag.
+    # Re-running is harmless.
+    systemd.services.portainer-configure = {
+      description = "Apply Portainer settings that only exist in its runtime database";
+      after = [ "docker-portainer.service" ];
+      requires = [ "docker-portainer.service" ];
+      wantedBy = [ "multi-user.target" ];
+      path = [ pkgs.curl pkgs.jq ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+      };
+      script = ''
+        api=http://127.0.0.1:9000/api
+
+        # The container is "started" as soon as docker returns, but the HTTP
+        # server needs a moment more before it answers.
+        for _ in $(seq 60); do
+          curl -sf "$api/system/status" > /dev/null && break
+          sleep 1
+        done
+
+        jwt=$(jq -nc --arg p "$(cat /etc/portainer/admin-password)" \
+                '{username: "admin", password: $p}' \
+              | curl -sf -X POST "$api/auth" -H 'Content-Type: application/json' -d @- \
+              | jq -r .jwt)
+
+        curl -sf -X PUT "$api/settings" \
+          -H "Authorization: Bearer $jwt" \
+          -H 'Content-Type: application/json' \
+          -d '{"InternalAuthSettings":{"RequiredPasswordLength":1}}' > /dev/null
+      '';
     };
 
     # Both containers bind to the wg0 address; make sure the tunnel is up
