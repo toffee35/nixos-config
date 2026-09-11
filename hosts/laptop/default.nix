@@ -87,6 +87,38 @@
   # on alsa_output.pci-0000_05_00.6.analog-stereo.
   security.rtkit.enable = true;
 
+  # The HDA codec otherwise powers down after a second of silence and clicks on
+  # every wake. In a voice call, where streams stop and start constantly with
+  # voice activity, that turns into near-continuous crackling. Verified by
+  # toggling the same parameter at runtime: crackling stopped at 0 and came
+  # back after a reboot reset it to 1.
+  #
+  # Costs a little idle power on battery, which is why the kernel defaults it on.
+  boot.extraModprobeConfig = ''
+    options snd_hda_intel power_save=0 power_save_controller=N
+  '';
+
+  # TLP comes from nixos-hardware's common/pc/laptop profile, not from this
+  # config, and its defaults are SOUND_POWER_SAVE_ON_AC=1 / ON_BAT=1 — it does
+  # not distinguish mains from battery for audio, so it re-asserts power saving
+  # over the modprobe setting above on boot and on every power-source change.
+  services.tlp.settings = {
+    SOUND_POWER_SAVE_ON_AC = 0;
+    SOUND_POWER_SAVE_ON_BAT = 0;
+  };
+
+  # Discord asks for a 360-frame period (7.5 ms) and PipeWire obliges by
+  # dragging the whole graph down to it, EasyEffects' extra node included.
+  # That budget is too tight here: over one session the sink and easyeffects_sink
+  # piled up ~800 and ~1050 xruns, which is the crackling during calls. Clamping
+  # the floor at 1024 (21 ms) keeps one client from setting the pace for
+  # everyone; 21 ms of added latency is irrelevant for voice chat.
+  services.pipewire.extraConfig.pipewire."10-min-quantum" = {
+    "context.properties" = {
+      "default.clock.min-quantum" = 1024;
+    };
+  };
+
   services.pipewire = {
     enable = true;
     alsa.enable = true;
