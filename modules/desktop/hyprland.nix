@@ -138,9 +138,8 @@ in {
             [
               "hyprpaper"
               "mako"
-              "[workspace 1] rust-rover"
+              "[workspace 1] zeditor"
               "[workspace 2 silent] google-chrome-stable"
-              "[workspace 2 silent] chromium"
               "[workspace 3 silent] Discord"
               "[workspace 4 silent] Telegram"
               "[workspace 5 silent] blueman-manager"
@@ -153,7 +152,8 @@ in {
           monitor = cfg.monitors;
 
           windowrule = [
-            # Workspace 1: RustRover
+            # Workspace 1: Zed, plus RustRover when opened by hand
+            "workspace 1, match:class dev.zed.Zed"
             "workspace 1, match:class jetbrains-rustrover"
 
             # Workspace 2: Google Chrome and Chromium
