@@ -62,7 +62,13 @@
     enable = true;
     settings = {
       charger = {
-        governor = "performance";
+        # Under amd-pstate-epp "powersave" is the dynamic mode, not a slow one:
+        # it still ramps to the full 4.28 GHz under load, and drops back toward
+        # the 412 MHz floor when there is nothing to do. "performance" pinned
+        # every core at ~3.27 GHz permanently — a lower ceiling than powersave
+        # reaches, yet hot and loud at idle, since the cores never wound down.
+        governor = "powersave";
+        energy_performance_preference = "balance_performance";
         turbo = "auto";             # Boosts to maximum only under load
       };
       battery = {
