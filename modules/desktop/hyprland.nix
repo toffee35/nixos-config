@@ -6,6 +6,20 @@ let
   palette = config.modules.theme.palette;
 
 
+  # Fn+F1 used to toggle sink and source independently. Because they start in
+  # whatever state they happen to be in, the two drift apart and stay inverted:
+  # muting the speakers would unmute the microphone. Toggle the sink, then make
+  # the source follow it, so one key always yields one consistent state.
+  mute-all = pkgs.writeShellScriptBin "mute-all" ''
+    ${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+
+    if ${pkgs.wireplumber}/bin/wpctl get-volume @DEFAULT_AUDIO_SINK@ | ${pkgs.gnugrep}/bin/grep -q MUTED; then
+      ${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 1
+    else
+      ${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 0
+    fi
+  '';
+
   touchpad-toggle = pkgs.writeShellScriptBin "touchpad-toggle" ''
     DEVICE=$(${pkgs.hyprland}/bin/hyprctl devices -j | ${pkgs.jq}/bin/jq -r '.mice[] | select(.name | ascii_downcase | contains("touchpad")) | .name' | head -n 1)
 
@@ -96,6 +110,7 @@ in {
         fastfetch
         btop
         touchpad-toggle
+        mute-all
         brightnessctl
         grim
         slurp
@@ -303,7 +318,7 @@ in {
           # Locked media keys (mute audio/mic, work when screen is locked)
           bindl = [
             # Fn+F1: Mute audio AND microphone
-            ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+            ", XF86AudioMute, exec, mute-all"
             # Fn+F4: Mute microphone only
             ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
           ];
