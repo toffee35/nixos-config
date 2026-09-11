@@ -103,6 +103,16 @@ in {
           };
 
           temperature = {
+            # Without an explicit path waybar falls back to thermal_zone0, and
+            # on this laptop that zone is iwlwifi_1 — the Wi-Fi chip, not the
+            # CPU. It idles around 70 °C and barely moves, so the bar read like
+            # the CPU was permanently hot.
+            #
+            # Points at zenpower's Tdie instead. Addressed by PCI path rather
+            # than /sys/class/hwmon/hwmonN, because that number is assigned in
+            # probe order and can shift between boots.
+            hwmon-path-abs = "/sys/devices/pci0000:00/0000:00:18.3/hwmon";
+            input-filename = "temp1_input";
             critical-threshold = 80;
             format = " {temperatureC}°C";
           };
