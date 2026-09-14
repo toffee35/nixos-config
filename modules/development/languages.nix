@@ -28,6 +28,7 @@ in {
         typescript
         pnpm
         bun
+        biome
 
         # Go Stack
         go
