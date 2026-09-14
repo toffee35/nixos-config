@@ -97,7 +97,12 @@ in {
     };
 
     environment.sessionVariables = {
-      NIXOS_OZONE_GFX_PROVIDER = "wayland";
+      # This is the name the nixpkgs wrappers actually read. The previous
+      # NIXOS_OZONE_GFX_PROVIDER is not a nixpkgs variable at all — nothing in
+      # the store looks at it — so Electron apps were started without their
+      # Wayland flags, which is why Discord's screen share found nothing to
+      # capture through the portal.
+      NIXOS_OZONE_WL = "1";
     };
 
     home-manager.users.${config.modules.user.name} = {
