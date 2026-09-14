@@ -29,6 +29,11 @@ in {
         pnpm
         bun
 
+        # Go Stack
+        go
+        gopls
+        go-tools
+
         # Rust Stack
         rustc
         cargo
