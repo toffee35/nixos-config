@@ -18,7 +18,15 @@ in {
     home-manager.users.${config.modules.user.name} = {
       home.packages = with pkgs; [
         # Python Stack
-        python3
+        # Jupyter is baked into the system interpreter rather than added as
+        # separate packages: jupyterlab/notebook next to a plain python3 would
+        # collide on bin/python, and the kernel has to live in the same
+        # interpreter as ipykernel. Project venvs stay isolated from these.
+        (python3.withPackages (ps: with ps; [
+          jupyterlab
+          notebook
+          ipykernel
+        ]))
         uv
         ruff
         ty
@@ -63,6 +71,10 @@ in {
           extensions = with pkgs.vscode-extensions; [
             rust-lang.rust-analyzer
             ms-python.python
+            ms-toolsai.jupyter
+            ms-toolsai.jupyter-renderers
+            ms-toolsai.jupyter-keymap
+            ms-toolsai.vscode-jupyter-cell-tags
             charliermarsh.ruff
             bbenoist.nix
           ];
