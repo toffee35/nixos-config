@@ -107,18 +107,6 @@
     SOUND_POWER_SAVE_ON_BAT = 0;
   };
 
-  # Discord asks for a 360-frame period (7.5 ms) and PipeWire obliges by
-  # dragging the whole graph down to it, EasyEffects' extra node included.
-  # That budget is too tight here: over one session the sink and easyeffects_sink
-  # piled up ~800 and ~1050 xruns, which is the crackling during calls. Clamping
-  # the floor at 1024 (21 ms) keeps one client from setting the pace for
-  # everyone; 21 ms of added latency is irrelevant for voice chat.
-  services.pipewire.extraConfig.pipewire."10-min-quantum" = {
-    "context.properties" = {
-      "default.clock.min-quantum" = 1024;
-    };
-  };
-
   services.pipewire = {
     enable = true;
     alsa.enable = true;
