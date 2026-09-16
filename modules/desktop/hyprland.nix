@@ -216,18 +216,22 @@ in {
 
           animations = {
             enabled = true;
-            # Durations are in deciseconds, so 3 = 300ms. Roughly half of the
-            # Hyprland defaults: still visible, but out of the way before the
-            # next keystroke lands. The curve no longer overshoots past 1.0
-            # (was 1.05), since the bounce is what reads as "slow" even when
-            # the duration itself is short.
+            # Durations are in deciseconds, so 2 = 200ms. Roughly a quarter of
+            # the Hyprland defaults: the motion still reads as motion, but is
+            # finished before the next keystroke lands. The curve does not
+            # overshoot past 1.0 (the default 1.05 does), since the bounce is
+            # what feels slow even when the duration itself is short.
+            #
+            # The front-loaded control points mean most of the travel happens
+            # in the first third of the window, so it looks quicker than the
+            # number alone suggests.
             bezier = "myBezier, 0.05, 0.9, 0.1, 1.0";
             animation = [
-              "windows, 1, 3, myBezier"
-              "windowsOut, 1, 2, myBezier, popin 80%"
-              "border, 1, 4, default"
-              "fade, 1, 2, default"
-              "workspaces, 1, 3, myBezier"
+              "windows, 1, 2, myBezier"
+              "windowsOut, 1, 1, myBezier, popin 80%"
+              "border, 1, 2, default"
+              "fade, 1, 1, default"
+              "workspaces, 1, 2, myBezier"
             ];
           };
 
