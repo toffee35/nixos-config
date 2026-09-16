@@ -3,6 +3,16 @@
 with lib;
 let
   cfg = config.modules.development.languages;
+
+  # Jupyter is baked into the system interpreter rather than added as separate
+  # packages: jupyterlab/notebook next to a plain python3 would collide on
+  # bin/python, and the kernel has to live in the same interpreter as
+  # ipykernel. Project venvs stay isolated from these.
+  pythonEnv = pkgs.python3.withPackages (ps: with ps; [
+    jupyterlab
+    notebook
+    ipykernel
+  ]);
 in {
   options.modules.development.languages = {
     enable = mkOption {
@@ -16,17 +26,22 @@ in {
 
 
     home-manager.users.${config.modules.user.name} = {
+      # The env ships its kernelspec only under its own store path, which the
+      # VSCodium Jupyter extension never scans — it looks in
+      # ~/.local/share/jupyter — so no kernel showed up at all. The stock spec
+      # also launches a bare `python`, which inside a project with an active
+      # venv resolves to that venv's interpreter, one without ipykernel.
+      # Pinning the absolute interpreter path avoids both.
+      xdg.dataFile."jupyter/kernels/python3-system/kernel.json".text = builtins.toJSON {
+        argv = [ "${pythonEnv}/bin/python" "-m" "ipykernel_launcher" "-f" "{connection_file}" ];
+        display_name = "Python 3 (system, Jupyter)";
+        language = "python";
+        metadata.debugger = true;
+      };
+
       home.packages = with pkgs; [
         # Python Stack
-        # Jupyter is baked into the system interpreter rather than added as
-        # separate packages: jupyterlab/notebook next to a plain python3 would
-        # collide on bin/python, and the kernel has to live in the same
-        # interpreter as ipykernel. Project venvs stay isolated from these.
-        (python3.withPackages (ps: with ps; [
-          jupyterlab
-          notebook
-          ipykernel
-        ]))
+        pythonEnv
         uv
         ruff
         ty
@@ -80,6 +95,7 @@ in {
           ];
           userSettings = {
             "telemetry.telemetryLevel" = "off";
+            "python.defaultInterpreterPath" = "${pythonEnv}/bin/python";
             "workbench.colorTheme" = "Default Dark Modern";
             "editor.fontSize" = 14;
             "editor.fontFamily" = "'JetBrainsMono Nerd Font', 'Courier New', monospace";
