@@ -39,19 +39,26 @@ in {
         metadata.debugger = true;
       };
 
+      # uv otherwise builds venvs on the nixpkgs python, whose loader ignores
+      # NIX_LD_LIBRARY_PATH — so pip wheels die on libstdc++.so.6 and torch
+      # cannot find libcuda.so.1. uv's own downloaded CPython is an ordinary
+      # dynamically linked binary that runs through nix-ld, which already
+      # carries libstdc++ and the Nvidia driver libs (modules/apps/default.nix).
+      # Verified: numpy imports and cuDeviceGetCount reports the GPU, with no
+      # LD_LIBRARY_PATH set. Existing venvs keep their old interpreter until
+      # recreated.
+      home.sessionVariables.UV_PYTHON_PREFERENCE = "only-managed";
+
       home.packages = with pkgs; [
         # Python Stack
         pythonEnv
         uv
-        ruff
-        ty
 
         # JavaScript/TypeScript Stack
         nodejs
         typescript
         pnpm
         bun
-        biome
 
         # Go Stack
         go
@@ -61,6 +68,10 @@ in {
         # Rust Stack
         rustc
         cargo
+        rustfmt
+        clippy
+        cargo-audit
+        cargo-deny
 
         # Global build tools and libraries for Rust/Python compiling
         pkg-config
