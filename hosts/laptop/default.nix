@@ -52,6 +52,28 @@
   time.timeZone = "Europe/Belgrade";
   i18n.defaultLocale = "en_US.UTF-8";
 
+  # No swap of any kind existed — no partition, no file, no zram — so a spike
+  # had nowhere to go but the OOM killer, and systemd-oomd manages no slice
+  # here either. zram is compressed swap inside RAM: it never touches the SSD,
+  # and zstd gets roughly 3:1 on anonymous pages, so half the RAM offered as
+  # zram buys back several gigabytes of headroom rather than 13.
+  #
+  # Sized at 50% because that is the upper bound of what is useful: zram pages
+  # still occupy RAM once compressed, and a larger pool mostly displaces the
+  # page cache.
+  # Default is 60, tuned for swap on a spinning disk: the kernel prefers to
+  # drop the page cache over swapping. With zram the trade flips — writing a
+  # cold anonymous page costs microseconds of zstd, whereas re-reading a
+  # dropped cache page costs a real SSD round trip. 150 leans on zram first,
+  # which is the point of having it.
+  boot.kernel.sysctl."vm.swappiness" = 150;
+
+  zramSwap = {
+    enable = true;
+    algorithm = "zstd";
+    memoryPercent = 50;
+  };
+
   # ── Hardware: Power Management ─────────────────────────────────────────────
   powerManagement.enable = true;
 
@@ -105,6 +127,76 @@
   services.tlp.settings = {
     SOUND_POWER_SAVE_ON_AC = 0;
     SOUND_POWER_SAVE_ON_BAT = 0;
+  };
+
+  # Crackling happens only on the built-in speakers and only while a Discord
+  # voice channel is open. Discord asks for a 360-frame period and the graph
+  # follows it; the analog output cannot keep up at that size, even though the
+  # xrun counters stay flat throughout (measured during the symptom). The same
+  # audio through Bluetooth headphones is clean, so the digital path is fine.
+  #
+  # Pinning the minimum only for this one node, rather than for the whole
+  # graph: a global default.clock.min-quantum was tried first and stopped
+  # Bluetooth A2DP from negotiating a stream at all.
+  services.pipewire.wireplumber.extraConfig."51-speaker-quantum" = {
+    "monitor.alsa.rules" = [
+      {
+        matches = [ { "node.name" = "alsa_output.pci-0000_05_00.6.analog-stereo"; } ];
+        actions.update-props = {
+          "api.alsa.period-size" = 1024;
+          "node.force-quantum" = 1024;
+        };
+      }
+    ];
+  };
+
+  # Bluetooth headphones went silent after connecting, with EasyEffects
+  # routing to them and nothing in the logs but "links failed to activate".
+  # The transport was seen flapping idle -> active -> idle: PipeWire suspends
+  # an idle node after a few seconds and releases the A2DP transport, and on
+  # the next sound these headphones fail to re-acquire it. A fresh reconnect
+  # only helped because it opened the transport anew.
+  #
+  # Never suspending Bluetooth outputs keeps the transport held for as long
+  # as the headphones are connected. Cost: the headphones get a silent stream
+  # and may not enter their own idle power-saving while connected.
+  services.pipewire.wireplumber.extraConfig."52-bluetooth-no-suspend" = {
+    "monitor.bluez.rules" = [
+      {
+        matches = [ { "node.name" = "~bluez_output.*"; } ];
+        actions.update-props = {
+          "session.suspend-timeout-seconds" = 0;
+        };
+      }
+    ];
+  };
+
+  # WirePlumber flips Bluetooth headphones to the headset profile (HFP/mSBC,
+  # narrowband) as soon as anything starts recording — joining a call is
+  # enough. The microphone here is the QuadCast, never the headset, so the
+  # switch only ever cost audio quality. Keep them in A2DP.
+  # During calls the A2DP transport would drop and bluez then refused to hand
+  # it back ("Acquire ... org.bluez.Error.NotAuthorized", with its own log
+  # saying the endpoint is "in bad state"); seconds later the HFP endpoint came
+  # up and the headphones were stuck in headset mode, where A2DP disappears
+  # from the profile list entirely and nothing plays. Reconnecting was the only
+  # cure, because it builds the transport anew. Happened on 22, 24, 27 and 29
+  # September — every time there was a call.
+  #
+  # With only the A2DP roles offered, there is no headset profile to fall into:
+  # a dropped transport is simply re-acquired. The headset's own microphone
+  # stops existing for the system, which costs nothing here — the microphone is
+  # the QuadCast, and these headphones are only ever used for output.
+  services.pipewire.wireplumber.extraConfig."54-bluetooth-a2dp-only" = {
+    "monitor.bluez.properties" = {
+      "bluez5.roles" = [ "a2dp_sink" "a2dp_source" ];
+    };
+  };
+
+  services.pipewire.wireplumber.extraConfig."53-bluetooth-no-autoswitch" = {
+    "wireplumber.settings" = {
+      "bluetooth.autoswitch-to-headset-profile" = false;
+    };
   };
 
   services.pipewire = {
