@@ -18,6 +18,21 @@ in {
     # Allow user to access docker without sudo
     users.users.${config.modules.user.name}.extraGroups = [ "docker" ];
 
+    # Docker keeps its own garbage and nix.gc never touches it: stopped
+    # containers, dangling images and the build cache added up to ~21 GB here.
+    # NixOS has this built in, so no hand-rolled unit — weekly, and only things
+    # older than a week.
+    #
+    # allVolumes stays false: the volumes hold the portainer, transmission and
+    # ollama data. No `-a` either, which would drop images that are merely not
+    # running.
+    virtualisation.docker.autoPrune = {
+      enable = true;
+      dates = "weekly";
+      flags = [ "--filter" "until=168h" ];
+      allVolumes.enable = false;
+    };
+
     # Declarative Docker Containers
     virtualisation.oci-containers = {
       backend = "docker";
