@@ -118,7 +118,11 @@ in {
           };
 
           "custom/gpu" = {
-            exec = "nvidia-smi --query-gpu=temperature.gpu,utilization.gpu --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '{print \"󰢮  \" $1 \"°C (\" $2 \"%%)\"}' || echo ''";
+            # nvidia-smi writes its failures to stdout, not stderr, so after a
+            # driver upgrade the bar used to read "Failed to initialize NVML:
+            # Driver/library version mismatch°C (%%)" until the machine was
+            # rebooted. Print only when the first field is actually a number.
+            exec = "nvidia-smi --query-gpu=temperature.gpu,utilization.gpu --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '$1 ~ /^[0-9]+$/ {print \"󰢮  \" $1 \"°C (\" $2 \"%%)\"}'";
             interval = 5;
             format = "{}";
             tooltip = false;
