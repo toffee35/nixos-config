@@ -6,17 +6,49 @@ let
   palette = config.modules.theme.palette;
 
 
-  # Fn+F1 used to toggle sink and source independently. Because they start in
-  # whatever state they happen to be in, the two drift apart and stay inverted:
-  # muting the speakers would unmute the microphone. Toggle the sink, then make
-  # the source follow it, so one key always yields one consistent state.
+  # Every capture node, not just the default one. The default source is
+  # EasyEffects' virtual easyeffects_source, which Discord records from, while
+  # EasyEffects itself reads the QuadCast directly — so muting only the
+  # default left the physical mic live and its level meter moving, and read as
+  # "the mic ignores the key". It also let the two drift apart: the QuadCast
+  # was found sitting muted on its own. Driving them all to one state fixes
+  # both.
+  set-all-sources = pkgs.writeShellScript "set-all-sources" ''
+    state="$1"
+    ${pkgs.pipewire}/bin/pw-dump \
+      | ${pkgs.jq}/bin/jq -r '.[]
+          | select(.type == "PipeWire:Interface:Node")
+          | select((.info.props["media.class"] // "") | startswith("Audio/Source"))
+          | .id' \
+      | while read -r id; do
+          ${pkgs.wireplumber}/bin/wpctl set-mute "$id" "$state"
+        done
+  '';
+
+  # Fn+F4. The key and the binding were fine all along; see set-all-sources
+  # for why it looked broken. Also notifies, since neither the QuadCast LED
+  # (hardware mute only) nor Discord shows the software state.
+  mic-toggle = pkgs.writeShellScriptBin "mic-toggle" ''
+    if ${pkgs.wireplumber}/bin/wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | ${pkgs.gnugrep}/bin/grep -q MUTED; then
+      ${set-all-sources} 0
+      ${pkgs.libnotify}/bin/notify-send -t 1500 -a "System" "Microphone" "Unmuted"
+    else
+      ${set-all-sources} 1
+      ${pkgs.libnotify}/bin/notify-send -t 1500 -a "System" "Microphone" "Muted"
+    fi
+  '';
+
+  # Fn+F1: toggle the speakers, then drive every mic to the same state, so one
+  # key always yields one consistent state instead of two that drift apart.
   mute-all = pkgs.writeShellScriptBin "mute-all" ''
     ${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
 
     if ${pkgs.wireplumber}/bin/wpctl get-volume @DEFAULT_AUDIO_SINK@ | ${pkgs.gnugrep}/bin/grep -q MUTED; then
-      ${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 1
+      ${set-all-sources} 1
+      ${pkgs.libnotify}/bin/notify-send -t 1500 -a "System" "Audio" "Speakers and microphone muted"
     else
-      ${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 0
+      ${set-all-sources} 0
+      ${pkgs.libnotify}/bin/notify-send -t 1500 -a "System" "Audio" "Speakers and microphone on"
     fi
   '';
 
@@ -116,6 +148,7 @@ in {
         btop
         touchpad-toggle
         mute-all
+        mic-toggle
         brightnessctl
         grim
         slurp
@@ -125,15 +158,6 @@ in {
       ];
 
       # Hyprpaper Wallpaper Service
-      services.hyprpaper = {
-        enable = true;
-        settings = {
-          ipc = "on";
-          preload = [ "${./tokyo-night.png}" ];
-          wallpaper = [ ",${./tokyo-night.png}" ];
-        };
-      };
-
       # Hyprland configuration
       wayland.windowManager.hyprland = {
         enable = true;
@@ -141,20 +165,28 @@ in {
         settings = {
           exec-once =
             [
-              "hyprpaper"
               "mako"
               "[workspace 1] zeditor"
               "[workspace 2 silent] google-chrome-stable"
+              # The memory caps live on the binaries themselves (see
+              # modules/apps/default.nix), so they apply however the app is
+              # started — wofi, .desktop entry or terminal.
               "[workspace 3 silent] Discord"
               "[workspace 4 silent] Telegram"
               "[workspace 5 silent] blueman-manager"
               "[workspace 5 silent] pavucontrol"
               "[workspace 5 silent] kitty --class btop -e btop"
-              "[workspace 5 silent] easyeffects"
             ]
             ++ optional config.modules.desktop.waybar.enable "waybar";
 
           monitor = cfg.monitors;
+
+          # After every Hyprland upgrade it pops "update news" on startup — the
+          # "your config was written for an older version" notice — until the
+          # version recorded in ~/.local/share/hyprland/lastVersion catches up
+          # (it read 0.56.1 while 0.56.2 was running). The config itself is
+          # clean: `Hyprland --verify-config` reports it ok.
+          ecosystem.no_update_news = true;
 
           windowrule = [
             # Workspace 1: Zed, plus RustRover when opened by hand
@@ -178,6 +210,12 @@ in {
             "workspace 5 silent, match:class blueman-manager"
             "workspace 5 silent, match:class pavucontrol"
             "workspace 5 silent, match:class btop"
+            # Started by services.easyeffects (modules/desktop/easyeffects.nix) in
+            # service mode, not from exec-once: both at once raced each other and
+            # left nothing running — the second invocation handed over to the
+            # first and exited 0, whereupon systemd ran its ExecStop (--quit) and
+            # killed the survivor. The rule still applies when the window is
+            # opened by hand.
             "workspace 5 silent, match:class com.github.wwmm.easyeffects"
 
             # Picture-in-Picture rules
@@ -264,7 +302,6 @@ in {
             # Screenshots (Print Screen key, labeled "Druck" on some layouts)
             ", Print, exec, screenshot-full"
             "$mod, Print, exec, screenshot-region"
-            "$mod, M, exit,"
             "$mod, V, togglefloating,"
             "$mod, F, fullscreen,"
 
@@ -329,7 +366,7 @@ in {
             # Fn+F1: Mute audio AND microphone
             ", XF86AudioMute, exec, mute-all"
             # Fn+F4: Mute microphone only
-            ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+            ", XF86AudioMicMute, exec, mic-toggle"
           ];
 
           # Resize windows (repeatable Ctrl + Win + arrow)
