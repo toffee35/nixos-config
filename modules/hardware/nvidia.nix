@@ -43,8 +43,14 @@ in {
       package = config.boot.kernelPackages.nvidiaPackages.stable;
     };
 
-    # Environment variables for Nvidia on Wayland / Hyprland
-    environment.sessionVariables = {
+    # These force GBM, GLX and VA-API onto the Nvidia card, which is right only
+    # when Nvidia is the sole GPU — the "ddg" specialisation from nixos-hardware,
+    # booted with Dual-Direct GFX enabled in the BIOS. In the default hybrid
+    # mode the internal panel hangs off the AMD iGPU; exported globally, these
+    # would drag the compositor, browsers and Discord back onto the dGPU and its
+    # 6 GB, which is exactly what hybrid mode is for avoiding. Apps that need
+    # Nvidia there go through `nvidia-offload`.
+    specialisation.ddg.configuration.environment.sessionVariables = {
       LIBVA_DRIVER_NAME = "nvidia";
       GBM_BACKEND = "nvidia-drm";
       __GLX_VENDOR_LIBRARY_NAME = "nvidia";
