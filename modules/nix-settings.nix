@@ -19,11 +19,17 @@ in {
     # Allow unfree packages globally
     nixpkgs.config.allowUnfree = true;
 
-    # Safe daily garbage collection & optimization (delete > 14d)
+    # Daily garbage collection & optimization.
+    #
+    # 7 days rather than 14: at 14 the store had grown to 113 GB, because a
+    # fortnight of rebuilds — CUDA builds and JetBrains IDEs among them — all
+    # counted as "recent" and a collection freed under a megabyte. Note this
+    # prunes by age only; the number of generations cannot be capped here
+    # (grub's configurationLimit only trims the boot menu).
     nix.gc = {
       automatic = true;
       dates = "daily";
-      options = "--delete-older-than 14d";
+      options = "--delete-older-than 7d";
     };
     nix.settings.auto-optimise-store = true;
     nix.optimise = {
