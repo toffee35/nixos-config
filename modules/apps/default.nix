@@ -3,6 +3,27 @@
 with lib;
 let
   cfg = config.modules.apps;
+
+  # Runs a program inside a systemd scope with a soft memory cap, by replacing
+  # the binaries in the profile rather than wrapping the autostart line: a cap
+  # in hyprland's exec-once would be bypassed by wofi, by the .desktop entry
+  # and by launching from a terminal. The .desktop files call these by name
+  # (Exec=Discord, Exec=Telegram), so all paths go through the cap.
+  #
+  # MemoryHigh throttles instead of killing: above the limit the kernel
+  # reclaims the app's idle pages into zram. MemoryMax would kill it instead.
+  capMemory = { pkg, bins, high }:
+    pkgs.symlinkJoin {
+      name = "${pkg.pname or pkg.name}-capped";
+      paths = [ pkg ];
+      nativeBuildInputs = [ pkgs.makeWrapper ];
+      postBuild = lib.concatMapStrings (b: ''
+        rm -f $out/bin/${b}
+        makeWrapper ${pkgs.systemd}/bin/systemd-run $out/bin/${b} \
+          --add-flags "--user --scope --collect --property=MemoryHigh=${high}" \
+          --add-flags "${pkg}/bin/${b}"
+      '') bins;
+    };
 in {
   options.modules.apps = {
     enable = mkOption {
@@ -70,8 +91,16 @@ in {
       home.packages = with pkgs; [
         google-chrome
         chromium
-        telegram-desktop
-        discord
+        (capMemory { pkg = telegram-desktop; bins = [ "Telegram" ]; high = "600M"; })
+        # Measured by PSS, Discord sat on 1347 MB, most of it idle, so it is
+        # capped like Telegram above.
+        #
+        # The XWayland experiment that used to live here is gone: it unset
+        # NIXOS_OZONE_WL to test whether Wayland caused the September crashes,
+        # but it never took effect — the renderer still ran with
+        # --ozone-platform=wayland, because Electron picks Wayland on its own.
+        # So it proved nothing and only added a layer.
+        (capMemory { pkg = discord; bins = [ "discord" "Discord" ]; high = "900M"; })
         obsidian
         obs-studio
         ffmpeg
