@@ -28,6 +28,13 @@ in {
           update_check_interval = 0;
           confirm_os_window_close = 0;
 
+          # kitty remembers the size of the last window it had, and since 0.49
+          # that includes a maximized state: every new terminal then opened
+          # maximized and dwindle would not tile it — the window stayed
+          # full-screen while others squeezed in beside it. Verified by
+          # elimination: this option alone fixes it, start_as=normal does not.
+          remember_window_size = "no";
+
           # Tokyo Night Dark color scheme (from modules/theme.nix)
           background = palette.bg;
           foreground = palette.fg;
