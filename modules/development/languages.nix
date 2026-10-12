@@ -12,11 +12,6 @@ let
     jupyterlab
     notebook
     ipykernel
-
-    # radon: cyclomatic complexity / maintainability metrics. Here rather than
-    # as a separate package so it reuses this interpreter instead of pulling a
-    # second python closure.
-    radon
   ]);
 in {
   options.modules.development.languages = {
