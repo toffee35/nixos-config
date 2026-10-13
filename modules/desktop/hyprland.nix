@@ -52,6 +52,16 @@ let
     fi
   '';
 
+  # The whole PipeWire session has twice got stuck: no playback started on any
+  # device, formats renegotiated in a loop, and only restarting the session
+  # manager brought it back. The cause is still unknown, so this is the cure,
+  # not a fix: it restarts WirePlumber and nothing else -- no mute, codec or
+  # profile is touched, so whatever state the devices were put in by hand stays.
+  sound-restart = pkgs.writeShellScriptBin "sound-restart" ''
+    systemctl --user restart wireplumber
+    ${pkgs.libnotify}/bin/notify-send -t 2000 -a "System" "Audio" "WirePlumber restarted"
+  '';
+
   touchpad-toggle = pkgs.writeShellScriptBin "touchpad-toggle" ''
     DEVICE=$(${pkgs.hyprland}/bin/hyprctl devices -j | ${pkgs.jq}/bin/jq -r '.mice[] | select(.name | ascii_downcase | contains("touchpad")) | .name' | head -n 1)
 
@@ -149,6 +159,7 @@ in {
         touchpad-toggle
         mute-all
         mic-toggle
+        sound-restart
         brightnessctl
         grim
         slurp
