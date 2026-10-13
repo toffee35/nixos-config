@@ -110,6 +110,7 @@ in {
         opencode
         claude-code
         codex
+        chatgpt
         hmcl
         imv
         xdg-utils
