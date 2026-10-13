@@ -38,12 +38,18 @@ let
     fi
   '';
 
-  # Fn+F1: speakers only. It used to drive every microphone to the same state
-  # as the speakers, which left the QuadCast muted in PipeWire every time the
-  # output was silenced -- found muted that way twice, with no indication
-  # anywhere. The microphone has its own key (Fn+F4, mic-toggle).
+  # Fn+F1: toggle the speakers, then drive every mic to the same state, so one
+  # key always yields one consistent state instead of two that drift apart.
   mute-all = pkgs.writeShellScriptBin "mute-all" ''
     ${pkgs.wireplumber}/bin/wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+
+    if ${pkgs.wireplumber}/bin/wpctl get-volume @DEFAULT_AUDIO_SINK@ | ${pkgs.gnugrep}/bin/grep -q MUTED; then
+      ${set-all-sources} 1
+      ${pkgs.libnotify}/bin/notify-send -t 1500 -a "System" "Audio" "Speakers and microphone muted"
+    else
+      ${set-all-sources} 0
+      ${pkgs.libnotify}/bin/notify-send -t 1500 -a "System" "Audio" "Speakers and microphone on"
+    fi
   '';
 
   touchpad-toggle = pkgs.writeShellScriptBin "touchpad-toggle" ''

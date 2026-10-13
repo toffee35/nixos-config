@@ -190,14 +190,6 @@
   services.pipewire.wireplumber.extraConfig."54-bluetooth-a2dp-only" = {
     "monitor.bluez.properties" = {
       "bluez5.roles" = [ "a2dp_sink" "a2dp_source" ];
-
-      # SBC only. With AAC (which the HAYLOU advertises and WirePlumber picked
-      # by default) BlueZ refused the transport outright:
-      #   Acquire .../sep2/fd0 returned error: org.bluez.Error.NotAuthorized
-      # followed by "2 of 2 PipeWire links failed to activate" and a silent
-      # sink. On SBC the same device acquires the transport and plays. SBC-XQ
-      # is left out on purpose: its higher bitrate is what used to crackle.
-      "bluez5.codecs" = [ "sbc" ];
     };
   };
 
@@ -225,14 +217,12 @@
     description = "NixOS User";
     extraGroups = [ "networkmanager" "wheel" "audio" "video" ];
 
-    # Phone's SSH keys. Only the PUBLIC halves live here — safe to commit; the
-    # private halves live on the phone alone and are never stored in this repo.
+    # Phone's SSH key. Only the PUBLIC half lives here — safe to commit; the
+    # private half lives on the phone alone and is never stored in this repo.
     # Password auth is off (see services.openssh below), so this list is the
     # only way in over SSH.
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILrzYIFt3FDb89y0repJSLZrO/gmTnPWr+POb1S14urq phone@0NLaptopLegion"
-      # Termux on the same phone
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHp2w1weXzLyroePMbPFRvCC4OPrmLc3H6Zi2Gu7haC0 termux-phone"
     ];
   };
 
