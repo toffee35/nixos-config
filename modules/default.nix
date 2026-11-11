@@ -1,16 +1,42 @@
-# Auto-imports every .nix file in this directory tree, so a new module only has
-# to be created, not registered. Each module has its own `enable` option
-# (default: true). To disable a module, set `modules.<category>.<name>.enable
-# = false` in the host config.
-{ lib, ... }:
-
+# Explicit imports: helper derivations belong in pkgs/, not in this list.
+{ ... }:
 {
-  imports =
-    let
-      # Only this very file is skipped. Excluding every default.nix would drop
-      # real modules: modules/apps/default.nix is one.
-      isModule = path:
-        lib.hasSuffix ".nix" (toString path) && toString path != toString ./default.nix;
-    in
-    builtins.filter isModule (lib.filesystem.listFilesRecursive ./.);
+  imports = [
+    ./apps/antigravity.nix
+    ./apps/default.nix
+    ./apps/minecraft.nix
+    ./apps/steam.nix
+    ./desktop/easyeffects.nix
+    ./desktop/gnome-keyring.nix
+    ./desktop/graceful-shutdown.nix
+    ./desktop/hypridle.nix
+    ./desktop/hyprland.nix
+    ./desktop/hyprlock.nix
+    ./desktop/kitty.nix
+    ./desktop/sddm.nix
+    ./desktop/theme-gtk.nix
+    ./desktop/thunar.nix
+    ./desktop/waybar.nix
+    ./desktop/wofi.nix
+    ./development/cuda.nix
+    ./development/docker.nix
+    ./development/languages.nix
+    ./development/ollama.nix
+    ./development/samba.nix
+    ./hardware/audio.nix
+    ./hardware/avahi.nix
+    ./hardware/battery-notify.nix
+    ./hardware/battery.nix
+    ./hardware/boot.nix
+    ./hardware/legion-rgb.nix
+    ./hardware/nvidia.nix
+    ./hardware/quadcast-rgb.nix
+    ./hardware/virtual-camera.nix
+    ./hardware/wireguard.nix
+    ./nix-settings.nix
+    ./secrets.nix
+    ./shell/zsh.nix
+    ./theme.nix
+    ./user.nix
+  ];
 }

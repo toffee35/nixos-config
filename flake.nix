@@ -16,7 +16,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    
+
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -24,6 +24,11 @@
 
     home-manager = {
       url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -50,25 +55,81 @@
     };
   };
 
-  outputs = { self, nixpkgs, disko, home-manager, nixos-hardware, l5p-keyboard-rgb, antigravity, quadcastrgb, ... }@inputs: {
-    nixosConfigurations.laptop = nixpkgs.lib.nixosSystem {
-      specialArgs = { inherit inputs; };
-      modules = [
-        disko.nixosModules.disko
-        ./disko.nix
-        nixos-hardware.nixosModules.lenovo-legion-16ach6h
-        ./hosts/laptop/default.nix
-        home-manager.nixosModules.home-manager
-        ({ config, ... }: {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.users.${config.modules.user.name} = import ./home.nix;
-          home-manager.extraSpecialArgs = {
-            inherit inputs;
-            username = config.modules.user.name;
-          };
-        })
-      ];
+  outputs =
+    {
+      self,
+      nixpkgs,
+      disko,
+      home-manager,
+      nixos-hardware,
+      l5p-keyboard-rgb,
+      antigravity,
+      quadcastrgb,
+      ...
+    }@inputs:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
+      laptop = self.nixosConfigurations.laptop.config;
+    in
+    {
+      formatter.${system} = pkgs.nixfmt-tree;
+      packages.${system}.secrets-migrator = pkgs.writeShellApplication {
+        name = "migrate-secrets";
+        runtimeInputs = with pkgs; [
+          sops
+          ssh-to-age
+          coreutils
+        ];
+        text = builtins.readFile ./scripts/migrate-secrets.sh;
+      };
+      checks.${system} = {
+        hyprland = pkgs.runCommand "hyprland-config-check" { } ''
+          export XDG_RUNTIME_DIR="$TMPDIR"
+          ${pkgs.hyprland}/bin/Hyprland --verify-config \
+            -c ${laptop.home-manager.users.n.xdg.configFile."hypr/hyprland.lua".source} \
+            > "$out" 2>&1
+        '';
+        configuration =
+          assert !laptop.services.auto-cpufreq.enable;
+          assert laptop.services.tlp.enable;
+          assert builtins.all (c: pkgs.lib.hasInfix "@sha256:" c.image) (
+            builtins.attrValues laptop.virtualisation.oci-containers.containers
+          );
+          assert !(laptop.home-manager.users.n.home.sessionVariables ? PKG_CONFIG_PATH);
+          pkgs.runCommand "configuration-invariants" { } "touch $out";
+        scripts =
+          pkgs.runCommand "maintenance-shellcheck"
+            {
+              nativeBuildInputs = [ pkgs.shellcheck ];
+            }
+            ''
+              shellcheck ${./scripts/migrate-secrets.sh}
+              touch "$out"
+            '';
+      };
+      nixosConfigurations.laptop = nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit inputs; };
+        modules = [
+          disko.nixosModules.disko
+          ./disko.nix
+          nixos-hardware.nixosModules.lenovo-legion-16ach6h
+          ./hosts/laptop/default.nix
+          home-manager.nixosModules.home-manager
+          inputs.sops-nix.nixosModules.sops
+          ({ config, ... }: {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.${config.modules.user.name} = import ./home.nix;
+            home-manager.extraSpecialArgs = {
+              inherit inputs;
+              username = config.modules.user.name;
+            };
+          })
+        ];
+      };
     };
-  };
 }
