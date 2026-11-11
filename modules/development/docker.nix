@@ -13,6 +13,10 @@ in {
   };
 
   config = mkIf cfg.enable {
+    assertions = [ {
+      assertion = config.modules.hardware.wireguard.enable;
+      message = "Portainer and Transmission bind to WireGuard; enable it or disable the Docker module.";
+    } ];
     virtualisation.docker.enable = true;
     
     # Allow user to access docker without sudo
@@ -38,7 +42,7 @@ in {
       backend = "docker";
       containers = {
         portainer = {
-          image = "portainer/portainer-ce:latest";
+          image = "portainer/portainer-ce@sha256:f6bc23d1695530a609563fd65c180aaafec0fc02e019d5fc63d16b6fbe83addd";
           # Bound to loopback + the wg0 tunnel address only, not "0.0.0.0":
           # Docker's own iptables rules bypass the NixOS firewall for published
           # ports (verified via `ss -tlnp` showing it reachable on all
@@ -50,7 +54,7 @@ in {
           volumes = [
             "/var/run/docker.sock:/var/run/docker.sock"
             "portainer_data:/data"
-            "/etc/portainer/admin-password:/run/admin-password:ro"
+            "${config.modules.secrets.paths.portainer}:/run/admin-password:ro"
           ];
           # Bootstraps the admin account on first start, so the UI never sits in
           # its "no admin yet" state and never expires into /timeout.html.
@@ -73,7 +77,7 @@ in {
           ];
         };
         transmission = {
-          image = "linuxserver/transmission:latest";
+          image = "linuxserver/transmission@sha256:0913501f5d05c019f5e3555a3299df1d8de420fdf882c92a8857787f9fbf999d";
           ports = [
             "127.0.0.1:9091:9091"
             "10.100.0.1:9091:9091"
@@ -124,7 +128,7 @@ in {
           sleep 1
         done
 
-        jwt=$(jq -nc --arg p "$(cat /etc/portainer/admin-password)" \
+        jwt=$(jq -nc --arg p "$(cat ${lib.escapeShellArg config.modules.secrets.paths.portainer})" \
                 '{username: "admin", password: $p}' \
               | curl -sf -X POST "$api/auth" -H 'Content-Type: application/json' -d @- \
               | jq -r .jwt)

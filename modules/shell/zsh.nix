@@ -3,6 +3,7 @@
 with lib;
 let
   cfg = config.modules.shell.zsh;
+  flakeDir = "${config.users.users.${config.modules.user.name}.home}/nixos-config";
 in {
   options.modules.shell.zsh = {
     enable = mkOption {
@@ -23,7 +24,7 @@ in {
         enableCompletion = true;
         autosuggestion.enable = true;
         syntaxHighlighting.enable = true;
-        
+
         oh-my-zsh = {
           enable = true;
           theme = "robbyrussell";
@@ -31,10 +32,11 @@ in {
         };
 
         shellAliases = {
-          ll = "ls -l";
-          # Quick shortcuts for on-the-fly execution without dev shell files:
-          ur = "nix run nixpkgs#";
-          us = "nix shell nixpkgs#";
+          ll = "ls -la";
+          rbld = "sudo nixos-rebuild switch --flake ${flakeDir}#laptop";
+          updt = "nix flake update --flake ${flakeDir}";
+          pwr  = "systemctl poweroff";
+          rbt  = "systemctl reboot";
         };
       };
     };

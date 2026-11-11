@@ -14,8 +14,12 @@ in {
   };
 
   config = mkIf cfg.enable {
+    assertions = [
+      { assertion = config.modules.development.docker.enable; message = "Samba requires modules.development.docker.enable."; }
+      { assertion = config.modules.hardware.wireguard.enable; message = "Samba binds to WireGuard; enable it or disable Samba."; }
+    ];
     virtualisation.oci-containers.containers.samba = {
-      image = "ghcr.io/servercontainers/samba:latest";
+      image = "ghcr.io/servercontainers/samba@sha256:57859789bd3425e6e929269fa13b16251cc8b8f939e4362ed7100aaf41a17122";
 
       # Bound to the WireGuard address only — same reasoning as the other
       # containers in ./docker.nix: Docker's published ports bypass the NixOS
@@ -55,7 +59,7 @@ in {
       #   sudo install -d -m 700 /etc/samba
       #   printf 'ACCOUNT_n=1111\n' | sudo tee /etc/samba/container-env > /dev/null
       #   sudo chmod 600 /etc/samba/container-env
-      environmentFiles = [ "/etc/samba/container-env" ];
+      environmentFiles = [ config.modules.secrets.paths.samba ];
     };
 
     # Binds to the wg0 address, so the tunnel has to exist first — same

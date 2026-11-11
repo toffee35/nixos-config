@@ -54,30 +54,26 @@ in {
         pythonEnv
         uv
 
-        # JavaScript/TypeScript Stack
-        nodejs
-        typescript
-        pnpm
-        bun
-
         # Go Stack
         go
         gopls
-        go-tools
+        go-tools # staticcheck
+        delve
 
-        # Rust Stack
-        rustc
-        cargo
-        rustfmt
-        clippy
-        cargo-audit
-        cargo-deny
+        # JavaScript
+        nodejs
+        pnpm
+        tsx # run .ts files directly
+
+        # Infrastructure as Code
+        terraform
+        terraform-ls
 
         # Global build tools and libraries for Rust/Python compiling
         pkg-config
         openssl
-        glibc.dev
         gcc
+        gnumake # Run Makefile targets.
         just
 
         # JetBrains IDEs
@@ -88,7 +84,18 @@ in {
 
         # Zed Editor
         zed-editor
+
+        # Remaining toolchains, installed globally (no per-project devShells).
+        typescript
+        bun
+        rustc
+        cargo
+        rustfmt
+        clippy
+        cargo-audit
+        cargo-deny
       ];
+
 
       # VSCodium setup via Home Manager
       programs.vscodium = {
@@ -102,6 +109,8 @@ in {
             ms-toolsai.jupyter-keymap
             ms-toolsai.vscode-jupyter-cell-tags
             charliermarsh.ruff
+            golang.go
+            hashicorp.terraform
             bbenoist.nix
           ];
           userSettings = {
