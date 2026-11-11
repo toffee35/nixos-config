@@ -34,6 +34,11 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # Lutris still bundles GTK2 for legacy game runtimes. New nixpkgs marks
+    # GTK2 broken due to deprecation; keep this one compatibility dependency
+    # available until Lutris drops it, without allowing broken packages broadly.
+    nixpkgs.config.problems.handlers."gtk+".broken = "warn";
+
     # Enable nix-ld to run unpatched dynamic binaries (important for precompiled CLI tools, etc.)
     programs.nix-ld = {
       enable = true;
@@ -42,7 +47,12 @@ in {
         # Nvidia driver userspace libs (libcuda.so.1 etc.) - lets unpatched binaries
         # (e.g. pip/uv-installed PyTorch wheels) find CUDA without manual LD_LIBRARY_PATH.
         # Kept in sync with the driver package used in modules/hardware/nvidia.nix.
-        config.boot.kernelPackages.nvidiaPackages.stable
+        config.hardware.nvidia.package
+      ] ++ optionals config.modules.development.cuda.enable [
+        # CUDA runtime (libcudart, libcublas, ...) for prebuilt wheels such as
+        # llama-cpp-python's cu130 build, which link libcudart.so.13 directly.
+        config.modules.development.cuda.package
+      ] ++ [
         zlib
         fuse3
         alsa-lib
@@ -110,6 +120,7 @@ in {
         opencode
         claude-code
         codex
+        grok-build
         chatgpt
         hmcl
         imv
