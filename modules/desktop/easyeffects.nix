@@ -10,16 +10,31 @@ in {
       default = true;
       description = "Enable EasyEffects audio effects for PipeWire";
     };
+
+    excludedOutputDevices = mkOption {
+      type = types.listOf types.str;
+      default = [ "alsa_output.pci-0000_05_00.6.analog-stereo" ];
+      description = "Output devices that bypass automatic EasyEffects processing.";
+    };
   };
 
   config = mkIf cfg.enable {
-    home-manager.users.${config.modules.user.name} = {
-      # Only `enable` on purpose. The module also takes declarative presets,
-      # but those land in the store read-only and the GUI can then no longer
-      # edit them — so presets stay where they are made, in ~/.config/easyeffects.
-      # This just installs the program and runs it in the background, so the
-      # effects apply without keeping the window open.
+    home-manager.users.${config.modules.user.name} = { config, ... }: let
+      settingsFile = "${config.xdg.configHome}/easyeffects/db/easyeffectsrc";
+      configureOutputs = pkgs.writeShellScript "easyeffects-output-routing" ''
+        set -eu
+        ${pkgs.coreutils}/bin/mkdir -p ${escapeShellArg (builtins.dirOf settingsFile)}
+        ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 \
+          --file ${escapeShellArg settingsFile} \
+          --group EffectsPipelines --key outputSinkBlocklist \
+          ${escapeShellArg (concatStringsSep "," cfg.excludedOutputDevices)}
+      '';
+    in {
+      # Keep presets writable in the GUI. Only enforce output routing before
+      # startup: the built-in speakers crackled through the output pipeline,
+      # even with its filter bypassed, while direct playback was clean.
       services.easyeffects.enable = true;
+      systemd.user.services.easyeffects.Service.ExecStartPre = [ "${configureOutputs}" ];
     };
   };
 }

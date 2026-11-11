@@ -3,6 +3,26 @@
 with lib;
 let
   cfg = config.modules.desktop.thunar;
+  dockerBookmarks = pkgs.writeShellScript "thunar-docker-bookmarks" ''
+    set -eu
+    config_dir="''${XDG_CONFIG_HOME:-$HOME/.config}/gtk-3.0"
+    ${pkgs.coreutils}/bin/mkdir -p "$config_dir"
+    bookmarks="$config_dir/bookmarks"
+    ${pkgs.coreutils}/bin/touch "$bookmarks"
+    if [ -s "$bookmarks" ] && [ -n "$(${pkgs.coreutils}/bin/tail -c 1 "$bookmarks")" ]; then
+      printf '\n' >> "$bookmarks"
+    fi
+
+    # Keep bookmarks editable in Thunar and preserve the user's other entries.
+    for entry in \
+      'admin:///var/lib/docker Docker (admin)' \
+      'admin:///var/lib/docker/volumes Docker volumes (admin)'; do
+      uri="''${entry%% *}"
+      if ! ${pkgs.gnugrep}/bin/grep -Eq "^$uri( |$)" "$bookmarks"; then
+        printf '%s\n' "$entry" >> "$bookmarks"
+      fi
+    done
+  '';
 in {
   options.modules.desktop.thunar = {
     enable = mkOption {
@@ -34,9 +54,31 @@ in {
 
     services.gvfs.enable = true;
 
+    # Polkit's agent alone is not enough: recent NixOS defaults leave the
+    # setuid pkexec wrapper disabled. GVfs admin:// needs that wrapper.
+    security.polkit = {
+      enable = true;
+      enablePkexecWrapper = true;
+    };
+
     services.tumbler.enable = true;
 
-    home-manager.users.${config.modules.user.name} = {
+    home-manager.users.${config.modules.user.name} = { lib, ... }: {
+      # GVfs elevates file operations through polkit; Thunar itself stays in
+      # the user's session. Docker's on-disk ownership and modes stay intact.
+      home.activation.dockerBookmarks = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        run ${dockerBookmarks}
+      '';
+
+      xdg.desktopEntries.docker-files = {
+        name = "Файлы Docker";
+        comment = "Открыть хранилище Docker с правами администратора";
+        exec = "${config.programs.thunar.finalPackage}/bin/thunar admin:///var/lib/docker";
+        icon = "folder-system";
+        terminal = false;
+        categories = [ "System" "FileManager" ];
+      };
+
       # Nothing in the session could ever ask for a password: polkit itself was
       # enabled, but no authentication agent ran, so any privileged request just
       # failed silently. That is also what kept gvfs's admin:// backend from
@@ -61,7 +103,7 @@ in {
 
       # Bind shortcut only if Hyprland is also enabled
       wayland.windowManager.hyprland.settings.bind = mkIf config.modules.desktop.hyprland.enable [
-        "$mod, E, exec, thunar"
+        { _args = [ "SUPER + E" (lib.generators.mkLuaInline ''hl.dsp.exec_cmd("thunar")'') ]; }
       ];
     };
   };

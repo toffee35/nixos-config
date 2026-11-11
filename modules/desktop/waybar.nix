@@ -4,6 +4,9 @@ with lib;
 let
   cfg = config.modules.desktop.waybar;
   palette = config.modules.theme.palette;
+  gpuIndicator = pkgs.writeShellScriptBin "waybar-gpu" ''
+    exec ${pkgs.python3}/bin/python3 ${../../pkgs/waybar-gpu.py}
+  '';
 
   # Replaces waybar's own hyprland/language module, which cannot read this
   # keyboard: it looks for the last "(" in the event to find where the device
@@ -68,23 +71,24 @@ in {
     home-manager.users.${config.modules.user.name} = {
       programs.waybar = {
         enable = true;
+        systemd.enable = true;
         settings.mainBar = {
           layer = "top";
           position = "top";
           height = 30;
           spacing = 2;
-          modules-left = [ "hyprland/workspaces" "hyprland/window" ];
+          modules-left = [ "ext/workspaces" "hyprland/window" ];
           modules-center = [ "clock" ];
           modules-right = [ "pulseaudio" "custom/language" "network" "cpu" "memory" "temperature" "custom/gpu" "battery" "tray" ];
 
-          # 1-5 are always drawn; 6-8 (bound in hyprland.nix) show up only while
-          # they exist, i.e. hold a window or are the one you are looking at.
-          "hyprland/workspaces" = {
-            disable-scroll = true;
+          # Use the standard protocol: Waybar's Hyprland-specific module still
+          # sends legacy dispatch commands removed in Hyprland 0.57.
+          # Persistence for workspaces 1-5 is declared in Hyprland itself.
+          "ext/workspaces" = {
+            on-click = "activate";
             all-outputs = true;
-            persistent-workspaces = {
-              "*" = [ 1 2 3 4 5 ];
-            };
+            sort-by-name = true;
+            ignore-hidden = false;
           };
 
           "hyprland/window" = {
@@ -118,14 +122,11 @@ in {
           };
 
           "custom/gpu" = {
-            # nvidia-smi writes its failures to stdout, not stderr, so after a
-            # driver upgrade the bar used to read "Failed to initialize NVML:
-            # Driver/library version mismatch°C (%%)" until the machine was
-            # rebooted. Print only when the first field is actually a number.
-            exec = "nvidia-smi --query-gpu=temperature.gpu,utilization.gpu --format=csv,noheader,nounits 2>/dev/null | awk -F', ' '$1 ~ /^[0-9]+$/ {print \"󰢮  \" $1 \"°C (\" $2 \"%%)\"}'";
+            exec = "${gpuIndicator}/bin/waybar-gpu";
+            return-type = "json";
             interval = 5;
             format = "{}";
-            tooltip = false;
+            tooltip = true;
           };
 
           clock = {
@@ -200,6 +201,12 @@ in {
             margin: 0 2px;
           }
         '';
+      };
+      # Recover if the PulseAudio backend crashes while PipeWire restarts
+      # during a system switch. Start after the audio server at login too.
+      systemd.user.services.waybar = {
+        Unit.After = [ "pipewire-pulse.service" ];
+        Service.RestartSec = "3s";
       };
     };
   };

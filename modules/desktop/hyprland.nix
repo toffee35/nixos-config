@@ -76,13 +76,14 @@ let
     fi
 
     CURRENT_STATE=$(cat "$STATE_FILE")
+    DEVICE_LUA=$(printf '%s' "$DEVICE" | ${pkgs.jq}/bin/jq -Rs .)
 
     if [ "$CURRENT_STATE" = "enabled" ]; then
-      ${pkgs.hyprland}/bin/hyprctl keyword "device[$DEVICE]:enabled" false
+      ${pkgs.hyprland}/bin/hyprctl eval "hl.device({name=$DEVICE_LUA,enabled=false})"
       echo "disabled" > "$STATE_FILE"
       ${pkgs.libnotify}/bin/notify-send -t 1500 -a "System" "Touchpad" "Disabled"
     else
-      ${pkgs.hyprland}/bin/hyprctl keyword "device[$DEVICE]:enabled" true
+      ${pkgs.hyprland}/bin/hyprctl eval "hl.device({name=$DEVICE_LUA,enabled=true})"
       echo "enabled" > "$STATE_FILE"
       ${pkgs.libnotify}/bin/notify-send -t 1500 -a "System" "Touchpad" "Enabled"
     fi
@@ -126,7 +127,8 @@ in {
       default = [ ",preferred,auto,1" ];
       example = [ "eDP-1,2560x1600@165,0x0,1" "HDMI-A-1,preferred,auto,1" ];
       description = ''
-        Hyprland monitor lines, "name,resolution@refresh,position,scale".
+        Hyprland monitor lines, "name,resolution@refresh,position,scale",
+        optionally followed by "key=value" fields such as "cm=srgb".
         The default catches every output with its preferred mode, unscaled.
       '';
     };
@@ -148,6 +150,20 @@ in {
     };
 
     home-manager.users.${config.modules.user.name} = {
+      # A system switch can restart PipeWire after the portals, leaving their
+      # capture connection stale. Restart them with PipeWire, after it is ready.
+      xdg.configFile = genAttrs [
+        "systemd/user/xdg-desktop-portal.service.d/pipewire.conf"
+        "systemd/user/xdg-desktop-portal-hyprland.service.d/pipewire.conf"
+      ] (_: {
+        text = ''
+          [Unit]
+          Requires=pipewire.service
+          After=pipewire.service
+          PartOf=pipewire.service
+        '';
+      });
+
       # Wayland utilities
       home.packages = with pkgs; [
         pavucontrol
@@ -172,228 +188,20 @@ in {
       # Hyprland configuration
       wayland.windowManager.hyprland = {
         enable = true;
-        configType = "hyprlang";
-        settings = {
-          exec-once =
-            [
-              "mako"
-              "[workspace 1] zeditor"
-              "[workspace 2 silent] google-chrome-stable"
-              # The memory caps live on the binaries themselves (see
-              # modules/apps/default.nix), so they apply however the app is
-              # started — wofi, .desktop entry or terminal.
-              "[workspace 3 silent] Discord"
-              "[workspace 4 silent] Telegram"
-              "[workspace 5 silent] blueman-manager"
-              "[workspace 5 silent] pavucontrol"
-              "[workspace 5 silent] kitty --class btop -e btop"
-            ]
-            ++ optional config.modules.desktop.waybar.enable "waybar";
-
-          monitor = cfg.monitors;
-
-          # After every Hyprland upgrade it pops "update news" on startup — the
-          # "your config was written for an older version" notice — until the
-          # version recorded in ~/.local/share/hyprland/lastVersion catches up
-          # (it read 0.56.1 while 0.56.2 was running). The config itself is
-          # clean: `Hyprland --verify-config` reports it ok.
-          ecosystem.no_update_news = true;
-
-          windowrule = [
-            # Workspace 1: Zed, plus RustRover when opened by hand
-            "workspace 1, match:class dev.zed.Zed"
-            "workspace 1, match:class jetbrains-rustrover"
-
-            # Workspace 2: Google Chrome and Chromium
-            "workspace 2 silent, match:class google-chrome"
-            "workspace 2 silent, match:class chromium-browser"
-
-            # Workspace 3: Discord
-            "workspace 3 silent, match:class discord"
-            "workspace 3 silent, match:class Discord"
-
-            # Workspace 4: Telegram
-            "workspace 4 silent, match:class org.telegram.desktop"
-            "workspace 4 silent, match:class telegram-desktop"
-            "workspace 4 silent, match:class TelegramDesktop"
-
-            # Workspace 5: Utilities and background terminals
-            "workspace 5 silent, match:class blueman-manager"
-            "workspace 5 silent, match:class pavucontrol"
-            "workspace 5 silent, match:class btop"
-            # Started by services.easyeffects (modules/desktop/easyeffects.nix) in
-            # service mode, not from exec-once: both at once raced each other and
-            # left nothing running — the second invocation handed over to the
-            # first and exited 0, whereupon systemd ran its ExecStop (--quit) and
-            # killed the survivor. The rule still applies when the window is
-            # opened by hand.
-            "workspace 5 silent, match:class com.github.wwmm.easyeffects"
-
-            # Picture-in-Picture rules
-            "float true, match:title Picture-in-Picture"
-            "float true, match:title Picture in picture"
-            "pin true, match:title Picture-in-Picture"
-            "pin true, match:title Picture in picture"
-            "keep_aspect_ratio true, match:title Picture-in-Picture"
-            "keep_aspect_ratio true, match:title Picture in picture"
-          ];
-
-          input = {
-            kb_layout = "us,ru";
-            kb_options = "grp:alt_shift_toggle";
-            follow_mouse = 1;
-            touchpad.natural_scroll = true;
-          };
-
-          general = {
-            gaps_in = 2;
-            gaps_out = 4;
-            border_size = 1;
-            "col.active_border" = "rgba(ffffff66)";
-            "col.inactive_border" = "rgba(ffffff00)";
-            layout = "dwindle";
-          };
-
-          decoration = {
-            rounding = 3;
-            blur = {
-              enabled = true;
-              size = 3;
-              passes = 1;
-            };
-          };
-
-          animations = {
-            enabled = true;
-            # Durations are in deciseconds, so 2 = 200ms. Roughly a quarter of
-            # the Hyprland defaults: the motion still reads as motion, but is
-            # finished before the next keystroke lands. The curve does not
-            # overshoot past 1.0 (the default 1.05 does), since the bounce is
-            # what feels slow even when the duration itself is short.
-            #
-            # The front-loaded control points mean most of the travel happens
-            # in the first third of the window, so it looks quicker than the
-            # number alone suggests.
-            bezier = "myBezier, 0.05, 0.9, 0.1, 1.0";
-            animation = [
-              "windows, 1, 2, myBezier"
-              "windowsOut, 1, 1, myBezier, popin 80%"
-              "border, 1, 2, default"
-              "fade, 1, 1, default"
-              "workspaces, 1, 2, myBezier"
-            ];
-          };
-
-          # Keybindings
-          "$mod" = "SUPER";
-          bind = [
-            "$mod, Return, exec, kitty"
-            "$mod, Q, killactive,"
-
-            # Application launcher (Wofi)
-            "$mod, R, exec, wofi --show drun"
-            "$mod, D, exec, wofi --show drun"
-            "$mod, SPACE, exec, wofi --show drun"
-
-            # Screen lock (Win + L)
-            "$mod, L, exec, hyprlock"
-
-            # Pin focused window to all workspaces (Win + P)
-            "$mod, P, pin"
-
-            # Toggle hiding the focused window from screen shares/recordings
-            # (native Hyprland "no_screen_share" rule — window stays visible
-            # to you, screencopy consumers like OBS/Discord/browser share see
-            # a black box in its place instead)
-            "$mod SHIFT, H, setprop, activewindow no_screen_share toggle"
-
-            # Touchpad toggle (Fn + F10 maps to XF86TouchpadToggle)
-            ", XF86TouchpadToggle, exec, touchpad-toggle"
-
-            # Screenshots (Print Screen key, labeled "Druck" on some layouts)
-            ", Print, exec, screenshot-full"
-            "$mod, Print, exec, screenshot-region"
-            "$mod, V, togglefloating,"
-            "$mod, F, fullscreen,"
-
-            # Focus
-            "$mod, left, movefocus, l"
-            "$mod, right, movefocus, r"
-            "$mod, up, movefocus, u"
-            "$mod, down, movefocus, d"
-
-            # Workspaces. 1-5 are always shown in the bar (persistent-workspaces
-            # in waybar.nix); 6-8 only appear there once they hold a window.
-            "$mod, 1, workspace, 1"
-            "$mod, 2, workspace, 2"
-            "$mod, 3, workspace, 3"
-            "$mod, 4, workspace, 4"
-            "$mod, 5, workspace, 5"
-            "$mod, 6, workspace, 6"
-            "$mod, 7, workspace, 7"
-            "$mod, 8, workspace, 8"
-
-            # Move active window to workspace without following it there
-            "$mod SHIFT, 1, movetoworkspacesilent, 1"
-            "$mod SHIFT, 2, movetoworkspacesilent, 2"
-            "$mod SHIFT, 3, movetoworkspacesilent, 3"
-            "$mod SHIFT, 4, movetoworkspacesilent, 4"
-            "$mod SHIFT, 5, movetoworkspacesilent, 5"
-            "$mod SHIFT, 6, movetoworkspacesilent, 6"
-            "$mod SHIFT, 7, movetoworkspacesilent, 7"
-            "$mod SHIFT, 8, movetoworkspacesilent, 8"
-
-            # Move active window silently to workspace (Ctrl + Win + number)
-            "$mod CONTROL, 1, movetoworkspacesilent, 1"
-            "$mod CONTROL, 2, movetoworkspacesilent, 2"
-            "$mod CONTROL, 3, movetoworkspacesilent, 3"
-            "$mod CONTROL, 4, movetoworkspacesilent, 4"
-            "$mod CONTROL, 5, movetoworkspacesilent, 5"
-            "$mod CONTROL, 6, movetoworkspacesilent, 6"
-            "$mod CONTROL, 7, movetoworkspacesilent, 7"
-            "$mod CONTROL, 8, movetoworkspacesilent, 8"
-
-            # Move active window inside the workspace (Shift + Win + arrow)
-            "$mod SHIFT, left, movewindow, l"
-            "$mod SHIFT, right, movewindow, r"
-            "$mod SHIFT, up, movewindow, u"
-            "$mod SHIFT, down, movewindow, d"
-          ];
-
-          # Repeatable media and brightness keys (work when screen is locked)
-          bindle = [
-            # Fn+F2: Volume down 5%
-            ", XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-            # Fn+F3: Volume up 5% (capped at 100%)
-            ", XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+"
-            # Fn+F5: Brightness down 5%
-            ", XF86MonBrightnessDown, exec, brightnessctl set 5%-"
-            # Fn+F6: Brightness up 5%
-            ", XF86MonBrightnessUp, exec, brightnessctl set +5%"
-          ];
-
-          # Locked media keys (mute audio/mic, work when screen is locked)
-          bindl = [
-            # Fn+F1: Mute audio AND microphone
-            ", XF86AudioMute, exec, mute-all"
-            # Fn+F4: Mute microphone only
-            ", XF86AudioMicMute, exec, mic-toggle"
-          ];
-
-          # Resize windows (repeatable Ctrl + Win + arrow)
-          binde = [
-            "$mod CONTROL, left, resizeactive, -20 0"
-            "$mod CONTROL, right, resizeactive, 20 0"
-            "$mod CONTROL, up, resizeactive, 0 -20"
-            "$mod CONTROL, down, resizeactive, 0 20"
-          ];
-
-          # Mouse bindings (Win + mouse left/right click)
-          bindm = [
-            "$mod, mouse:272, movewindow"
-            "$mod, mouse:273, resizewindow"
-          ];
+        configType = "lua";
+        importantPrefixes = [ "config" "curve" "monitor" ];
+        settings = import ../../pkgs/hyprland-settings.nix {
+          inherit lib;
+          monitors = cfg.monitors;
         };
+        extraConfig = ''
+          hl.on("hyprland.start", function()
+            hl.exec_cmd("mako")
+            hl.exec_cmd("[workspace 1] pycharm")
+            hl.exec_cmd("[workspace 2 silent] google-chrome")
+            hl.exec_cmd("[workspace 3 silent] Discord")
+          end)
+        '';
       };
     };
   };

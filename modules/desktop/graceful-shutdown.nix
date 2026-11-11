@@ -44,7 +44,7 @@ let
     ${hyprctl} clients -j \
       | ${jq} -r '.[] | select((.class | ascii_downcase | test("chrom")) | not) | "\(.address) \(.pid)"' \
       | while read -r addr pid; do
-          run ${hyprctl} dispatch closewindow "address:$addr"
+          run ${hyprctl} dispatch "hl.dsp.window.close({window=\"address:$addr\"})"
           echo "$pid" >> "''${XDG_RUNTIME_DIR:-/tmp}/close-apps.pids"
         done
 
@@ -111,7 +111,7 @@ in {
       # $mod+M quits Hyprland directly, which would crash every app the same
       # way; close them first.
       wayland.windowManager.hyprland.settings.bind = [
-        "$mod, M, exec, close-apps && ${hyprctl} dispatch exit"
+        { _args = [ "SUPER + M" (lib.generators.mkLuaInline ''hl.dsp.exec_cmd("close-apps && ${hyprctl} dispatch 'hl.dsp.exit()'")'') ]; }
       ];
     };
   };
