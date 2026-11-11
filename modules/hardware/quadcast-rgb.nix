@@ -20,8 +20,23 @@ in {
     # set too late to ever become an ACL and the mic stays root-only.
     services.quadcastrgb = {
       enable = true;
+      # libusb starts an event thread before the program daemonizes. Forking
+      # afterwards can leave the child waiting forever on an inherited mutex.
+      # Keep the process in the foreground under systemd instead.
+      package = (inputs.quadcastrgb.packages.${pkgs.stdenv.hostPlatform.system}.quadcastrgb).overrideAttrs (old: {
+        postPatch = (old.postPatch or "") + ''
+          substituteInPlace modules/devio.c \
+            --replace-fail '    daemonize(verbose);' \
+              '    if (!getenv("QUADCASTRGB_FOREGROUND")) daemonize(verbose);'
+        '';
+      });
       # This mic is a Quadcast 2S, which upstream only drives in solid mode.
       arguments = [ "solid" "ffffff" ];
+    };
+
+    systemd.user.services.quadcastrgb = {
+      environment.QUADCASTRGB_FOREGROUND = "1";
+      serviceConfig.Type = lib.mkForce "simple";
     };
 
     # Every mute toggle makes the mic reset its HID interfaces, which kills the

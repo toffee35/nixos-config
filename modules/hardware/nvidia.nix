@@ -3,6 +3,20 @@
 with lib;
 let
   cfg = config.modules.hardware.nvidia;
+  toolsPatchelf = pkgs.callPackage ../../pkgs/nvidia-patchelf.nix { };
+  driver = config.boot.kernelPackages.nvidiaPackages.stable.overrideAttrs (old: {
+    postInstall = (if old.postInstall == null then "" else old.postInstall) + ''
+      for original in "$bin"/origBin/*; do
+        [ -f "$original" ] || continue
+        target="$bin/bin/$(basename "$original")"
+        cp "$original" "$target"
+        chmod u+w "$target"
+        ${toolsPatchelf}/bin/patchelf \
+          --set-interpreter "$(cat "$NIX_CC/nix-support/dynamic-linker")" \
+          --set-rpath "$out/lib:$libPath" "$target"
+      done
+    '';
+  });
 in {
   options.modules.hardware.nvidia = {
     enable = mkOption {
@@ -40,7 +54,7 @@ in {
       nvidiaSettings = true;
 
       # Use the stable driver release package
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
+      package = driver;
     };
 
     # These force GBM, GLX and VA-API onto the Nvidia card, which is right only

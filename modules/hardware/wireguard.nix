@@ -37,7 +37,7 @@ in {
     networking.wireguard.interfaces.wg0 = {
       ips = [ "10.100.0.1/24" ];
       listenPort = cfg.port;
-      privateKeyFile = "/etc/wireguard/private.key";
+      privateKeyFile = config.modules.secrets.paths.wireguard;
 
       # Add one entry per client device.
       peers = [

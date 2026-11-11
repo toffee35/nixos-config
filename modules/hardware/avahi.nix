@@ -15,10 +15,10 @@ in {
   config = mkIf cfg.enable {
     services.avahi = {
       enable = true;
-      publish = {
-        enable = true;
-        addresses = true;   # answer <hostname>.local -> current IP
-        workstation = true;
+      settings.publish = {
+        disable-publishing = false;
+        publish-addresses = true;
+        publish-workstation = true;
       };
       # Resolve other .local names from this machine too (nsswitch integration).
       nssmdns4 = true;
@@ -28,7 +28,7 @@ in {
       # docker0 and the per-container veth pairs — resolving <hostname>.local
       # then hands out 172.17.0.1, which is useless to anything off-host.
       # Restricted to the physical NICs so only the real LAN address goes out.
-      allowInterfaces = [ "wlp4s0" "eno1" ];
+      settings.server.allow-interfaces = [ "wlp4s0" "eno1" ];
     };
   };
 }
