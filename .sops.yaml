@@ -1,0 +1,3 @@
+creation_rules:
+  - path_regex: secrets/.*\.json$
+    age: age1asjex4a7q27ux75asqgkln750vgcq2dwlvd9qp6xydtdzdj36glshgqvmw
